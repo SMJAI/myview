@@ -12,11 +12,28 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   if (!user) redirect('/login')
 
-  const { data: profile } = await supabase
+  let { data: profile } = await supabase
     .from('profiles')
     .select('*')
     .eq('id', user.id)
     .single()
+
+  // Profile missing — create it now (handles trigger failures or race conditions)
+  if (!profile) {
+    const fullName =
+      user.user_metadata?.full_name ||
+      user.user_metadata?.name ||
+      user.email?.split('@')[0] ||
+      'Unknown'
+
+    const { data: newProfile } = await supabase
+      .from('profiles')
+      .insert({ id: user.id, email: user.email!, full_name: fullName, role: 'employee' })
+      .select('*')
+      .single()
+
+    profile = newProfile
+  }
 
   if (!profile) redirect('/login')
 
