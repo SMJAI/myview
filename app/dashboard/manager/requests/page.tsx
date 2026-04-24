@@ -17,7 +17,7 @@ export default async function AllRequestsPage() {
     .eq('id', user.id)
     .single()
 
-  if (profile?.role !== 'manager') redirect('/dashboard')
+  if (!profile || !['manager', 'hr_admin'].includes(profile.role)) redirect('/dashboard')
 
   const { data: requests } = await supabase
     .from('leave_requests')

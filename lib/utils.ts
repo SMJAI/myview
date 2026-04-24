@@ -33,14 +33,20 @@ export function getStatusColor(status: string) {
   }
 }
 
-export function countWorkingDays(start: string, end: string): number {
+export function countWorkingDays(
+  start: string,
+  end: string,
+  bankHolidays: string[] = []
+): number {
+  const bhSet = new Set(bankHolidays)
   const startDate = new Date(start)
   const endDate = new Date(end)
   let count = 0
   const current = new Date(startDate)
   while (current <= endDate) {
     const day = current.getDay()
-    if (day !== 0 && day !== 6) count++
+    const iso = current.toISOString().split('T')[0]
+    if (day !== 0 && day !== 6 && !bhSet.has(iso)) count++
     current.setDate(current.getDate() + 1)
   }
   return count

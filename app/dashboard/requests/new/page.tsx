@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { NewRequestForm } from './form'
+import { getEnglandBankHolidays } from '@/lib/bank-holidays'
 import type { LeaveType, LeaveBalance } from '@/lib/types'
 
 export default async function NewRequestPage() {
@@ -13,13 +14,14 @@ export default async function NewRequestPage() {
 
   const currentYear = new Date().getFullYear()
 
-  const [{ data: leaveTypes }, { data: balances }] = await Promise.all([
+  const [{ data: leaveTypes }, { data: balances }, bankHolidays] = await Promise.all([
     supabase.from('leave_types').select('*').order('name'),
     supabase
       .from('leave_balances')
       .select('*, leave_types(*)')
       .eq('user_id', user.id)
       .eq('year', currentYear),
+    getEnglandBankHolidays(),
   ])
 
   return (
@@ -31,6 +33,7 @@ export default async function NewRequestPage() {
       <NewRequestForm
         leaveTypes={(leaveTypes ?? []) as LeaveType[]}
         balances={(balances ?? []) as LeaveBalance[]}
+        bankHolidays={bankHolidays}
       />
     </div>
   )

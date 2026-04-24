@@ -141,23 +141,26 @@ create trigger on_auth_user_created
 -- is_default = true  → auto-seeded for every new user
 -- is_default = false → available but set manually per employee by manager
 insert into leave_types (name, default_days, color, is_default) values
-  -- Auto-seeded defaults
-  ('Annual Leave',              20,  '#1F9F70', true),   -- UK statutory: 20 days (excl. bank holidays)
+  -- Auto-seeded defaults (every employee gets these)
+  ('Annual Leave',              20,  '#1F9F70', true),   -- UK statutory: 20 days (excl. bank holidays; 28 days incl. BH)
   ('Bank Holiday',               8,  '#078B5B', true),   -- 8 UK public holidays
-  ('Sick Leave',                28,  '#EF4444', true),   -- Company sick pay (SSP statutory applies regardless)
+  ('Sick Leave',                 0,  '#EF4444', true),   -- No cap enforced; entitlement set per employee when needed
   ('Compassionate Leave',        5,  '#6B7280', true),   -- Employer discretion, common practice
 
   -- Statutory entitlements (set per employee when relevant)
-  ('Maternity Leave',          260,  '#EC4899', false),  -- 52 weeks statutory (SMP for 39 weeks)
-  ('Paternity Leave',           10,  '#3B82F6', false),  -- 2 weeks statutory (SPP)
-  ('Shared Parental Leave',    250,  '#8B5CF6', false),  -- Up to 50 weeks (ShPP for 37 weeks)
-  ('Adoption Leave',           260,  '#F59E0B', false),  -- 52 weeks statutory (SAP for 39 weeks)
-  ('Parental Bereavement',      14,  '#9CA3AF', false),  -- 2 weeks statutory (Child Bereavement Leave Act 2018)
+  ('Maternity Leave',          260,  '#EC4899', false),  -- 52 weeks (SMP: weeks 1-6 @ 90%, weeks 7-39 @ £187.18/wk)
+  ('Paternity Leave',           10,  '#3B82F6', false),  -- 1-2 weeks (SPP: £194.32/wk or 90% earnings)
+  ('Shared Parental Leave',    250,  '#8B5CF6', false),  -- Up to 50 weeks if mother takes 2 wks maternity
+  ('Adoption Leave',           260,  '#F59E0B', false),  -- 52 weeks (SAP: weeks 1-6 @ 90%, weeks 7-39 @ £194.32/wk)
+  ('Parental Bereavement',      10,  '#9CA3AF', false),  -- 2 weeks; child under 18 or stillbirth after 24 wks
+  ('Neonatal Care Leave',       60,  '#06B6D4', false),  -- Up to 12 weeks; babies born on/after 6 Apr 2025 in neonatal care ≥7 days
+  ('Unpaid Parental Leave',     90,  '#7A7A7A', false),  -- 18 weeks per child (to age 18); max 4 weeks/year per child; unpaid
 
   -- Employer discretion / unpaid statutory rights
+  ('Time Off in Lieu (TOIL)',    0,  '#8B5CF6', false),  -- Earned when working weekends/bank holidays; HR sets balance manually
   ('Marriage/Civil Partnership', 3,  '#F97316', false),  -- Not statutory; employer discretion
-  ('Unpaid Leave',               0,  '#7A7A7A', false),  -- No entitlement; manager approval required
-  ('Emergency Dependants',       0,  '#6B7280', false)   -- Statutory unpaid right (ERA 1996 s.57A)
+  ('Unpaid Leave',               0,  '#94A3B8', false),  -- Ad-hoc unpaid; manager approval required
+  ('Emergency Dependants',       0,  '#6B7280', false)   -- Statutory unpaid right (ERA 1996 s.57A); reasonable time only
 on conflict (name) do update set
   default_days = excluded.default_days,
   color        = excluded.color,

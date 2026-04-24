@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { countWorkingDays } from '@/lib/utils'
+import { getEnglandBankHolidays } from '@/lib/bank-holidays'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 
@@ -26,7 +27,8 @@ export async function submitLeaveRequest(formData: FormData) {
     return { error: 'End date cannot be before start date.' }
   }
 
-  const daysCount = countWorkingDays(startDate, endDate)
+  const bankHolidays = await getEnglandBankHolidays()
+  const daysCount = countWorkingDays(startDate, endDate, bankHolidays)
   if (daysCount === 0) {
     return { error: 'Selected dates contain no working days.' }
   }

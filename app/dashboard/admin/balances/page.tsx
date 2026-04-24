@@ -1,7 +1,9 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { BalancesTable } from './balances-table'
+import { getEnglandBankHolidays } from '@/lib/bank-holidays'
 import type { Profile, LeaveType, LeaveBalance } from '@/lib/types'
+import { canManageUsers } from '@/lib/types'
 import Link from 'next/link'
 
 export default async function BalancesPage() {
@@ -11,15 +13,16 @@ export default async function BalancesPage() {
 
   const { data: profile } = await supabase
     .from('profiles').select('role').eq('id', user.id).single()
-  if (profile?.role !== 'manager') redirect('/dashboard')
+  if (!profile || !canManageUsers(profile.role)) redirect('/dashboard')
 
   const currentYear = new Date().getFullYear()
   const selectedYear = currentYear
 
-  const [{ data: employees }, { data: leaveTypes }, { data: balances }] = await Promise.all([
+  const [{ data: employees }, { data: leaveTypes }, { data: balances }, bankHolidays] = await Promise.all([
     supabase.from('profiles').select('*').order('full_name'),
     supabase.from('leave_types').select('*').order('is_default', { ascending: false }).order('name'),
     supabase.from('leave_balances').select('*, leave_types(*)').eq('year', selectedYear),
+    getEnglandBankHolidays(),
   ])
 
   return (
@@ -52,6 +55,7 @@ export default async function BalancesPage() {
           leaveTypes={(leaveTypes ?? []) as LeaveType[]}
           balances={(balances ?? []) as LeaveBalance[]}
           year={selectedYear}
+          bankHolidays={bankHolidays}
         />
       )}
     </div>

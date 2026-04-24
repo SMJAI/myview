@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { updateTotalDays, upsertBalance } from './actions'
+import { prorateEntitlement, proratedBankHolidays } from '@/lib/proration'
 import type { Profile, LeaveType, LeaveBalance } from '@/lib/types'
 
 interface BalancesTableProps {
@@ -9,9 +10,10 @@ interface BalancesTableProps {
   leaveTypes: LeaveType[]
   balances: LeaveBalance[]
   year: number
+  bankHolidays: string[]
 }
 
-export function BalancesTable({ employees, leaveTypes, balances, year }: BalancesTableProps) {
+export function BalancesTable({ employees, leaveTypes, balances, year, bankHolidays }: BalancesTableProps) {
   const [editing, setEditing] = useState<string | null>(null)
   const [value, setValue] = useState('')
   const [saving, setSaving] = useState(false)
@@ -27,8 +29,16 @@ export function BalancesTable({ employees, leaveTypes, balances, year }: Balance
     return `${userId}__${leaveTypeId}`
   }
 
+  function getSuggested(emp: Profile, lt: LeaveType): number | null {
+    if (!emp.start_date || lt.default_days === 0) return null
+    if (lt.name === 'Bank Holiday') {
+      return proratedBankHolidays(bankHolidays, emp.start_date, year)
+    }
+    return prorateEntitlement(lt.default_days, emp.start_date, year, emp.weekly_hours ?? 37.5)
+  }
+
   async function handleSave(userId: string, leaveTypeId: string) {
-    const days = parseInt(value)
+    const days = parseFloat(value)
     if (isNaN(days) || days < 0) return
     setSaving(true)
     const existing = getBalance(userId, leaveTypeId)
@@ -47,6 +57,10 @@ export function BalancesTable({ employees, leaveTypes, balances, year }: Balance
     setEditing(editKey(userId, leaveTypeId))
   }
 
+  function applySuggested(suggested: number) {
+    setValue(String(suggested))
+  }
+
   return (
     <div className="space-y-10">
       {employees.map(emp => (
@@ -58,7 +72,17 @@ export function BalancesTable({ employees, leaveTypes, balances, year }: Balance
             </div>
             <div>
               <p className="font-semibold text-gray-900">{emp.full_name}</p>
-              <p className="text-xs text-gray-500">{emp.email}</p>
+              <p className="text-xs text-gray-500">
+                {emp.email}
+                {emp.start_date && (
+                  <span className="ml-2 text-gray-400">
+                    · started {new Date(emp.start_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                  </span>
+                )}
+                {emp.weekly_hours && emp.weekly_hours !== 37.5 && (
+                  <span className="ml-2 text-gray-400">· {emp.weekly_hours}h/wk</span>
+                )}
+              </p>
             </div>
           </div>
 
@@ -78,6 +102,7 @@ export function BalancesTable({ employees, leaveTypes, balances, year }: Balance
                 const key = editKey(emp.id, lt.id)
                 const isEditing = editing === key
                 const remaining = bal ? bal.total_days - bal.used_days : null
+                const suggested = getSuggested(emp, lt)
 
                 return (
                   <tr key={lt.id} className={`hover:bg-gray-50 ${!bal && !lt.is_default ? 'opacity-40' : ''}`}>
@@ -92,18 +117,37 @@ export function BalancesTable({ employees, leaveTypes, balances, year }: Balance
                     </td>
                     <td className="px-5 py-3">
                       {isEditing ? (
-                        <input
-                          type="number"
-                          min={0}
-                          value={value}
-                          onChange={e => setValue(e.target.value)}
-                          className="w-20 px-2 py-1 border border-brand-500 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
-                          autoFocus
-                        />
+                        <div className="space-y-1">
+                          <input
+                            type="number"
+                            min={0}
+                            step={0.5}
+                            value={value}
+                            onChange={e => setValue(e.target.value)}
+                            className="w-20 px-2 py-1 border border-brand-500 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+                            autoFocus
+                          />
+                          {suggested !== null && (
+                            <button
+                              type="button"
+                              onClick={() => applySuggested(suggested)}
+                              className="text-xs text-brand-600 hover:underline block"
+                            >
+                              Use prorated: {suggested}d
+                            </button>
+                          )}
+                        </div>
                       ) : (
-                        <span className="font-medium text-gray-900">
-                          {bal ? bal.total_days : '—'}
-                        </span>
+                        <div>
+                          <span className="font-medium text-gray-900">
+                            {bal ? bal.total_days : '—'}
+                          </span>
+                          {!bal && suggested !== null && (
+                            <span className="ml-2 text-xs text-gray-400">
+                              (prorated: {suggested}d)
+                            </span>
+                          )}
+                        </div>
                       )}
                     </td>
                     <td className="px-5 py-3 text-gray-500">{bal ? bal.used_days : '—'}</td>

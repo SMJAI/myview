@@ -21,7 +21,7 @@ export async function reviewRequest(
     .eq('id', user.id)
     .single()
 
-  if (profile?.role !== 'manager') return { error: 'Not authorised' }
+  if (!profile || !['manager', 'hr_admin'].includes(profile.role)) return { error: 'Not authorised' }
 
   // Get the request to update balance if approved
   const { data: request } = await supabase

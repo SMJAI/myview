@@ -9,9 +9,10 @@ import type { LeaveType, LeaveBalance } from '@/lib/types'
 interface NewRequestFormProps {
   leaveTypes: LeaveType[]
   balances: LeaveBalance[]
+  bankHolidays: string[]
 }
 
-export function NewRequestForm({ leaveTypes, balances }: NewRequestFormProps) {
+export function NewRequestForm({ leaveTypes, balances, bankHolidays }: NewRequestFormProps) {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [startDate, setStartDate] = useState('')
@@ -20,7 +21,7 @@ export function NewRequestForm({ leaveTypes, balances }: NewRequestFormProps) {
 
   const workingDays =
     startDate && endDate && new Date(endDate) >= new Date(startDate)
-      ? countWorkingDays(startDate, endDate)
+      ? countWorkingDays(startDate, endDate, bankHolidays)
       : null
 
   const selectedBalance = balances.find((b) => b.leave_type_id === selectedTypeId)
@@ -105,6 +106,7 @@ export function NewRequestForm({ leaveTypes, balances }: NewRequestFormProps) {
       {workingDays !== null && (
         <div className="bg-brand-50 border border-brand-100 rounded-lg px-4 py-3 text-sm text-brand-700">
           <span className="font-semibold">{workingDays}</span> working day{workingDays !== 1 ? 's' : ''}
+          <span className="text-brand-500 font-normal"> (weekends &amp; bank holidays excluded)</span>
         </div>
       )}
 

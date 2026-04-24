@@ -1,4 +1,4 @@
-export type Role = 'employee' | 'manager'
+export type Role = 'employee' | 'manager' | 'hr_admin'
 export type LeaveStatus = 'pending' | 'approved' | 'rejected' | 'cancelled'
 
 export interface Profile {
@@ -6,8 +6,18 @@ export interface Profile {
   full_name: string
   email: string
   role: Role
+  start_date: string | null
+  weekly_hours: number | null
   created_at: string
   updated_at: string
+}
+
+export function canManageUsers(role: Role) {
+  return role === 'manager' || role === 'hr_admin'
+}
+
+export function canApproveLeave(role: Role) {
+  return role === 'manager' || role === 'hr_admin'
 }
 
 export interface LeaveType {

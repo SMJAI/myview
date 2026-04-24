@@ -15,7 +15,7 @@ export async function upsertBalance(
 
   const { data: profile } = await supabase
     .from('profiles').select('role').eq('id', user.id).single()
-  if (profile?.role !== 'manager') return { error: 'Not authorised' }
+  if (!profile || !['manager', 'hr_admin'].includes(profile.role)) return { error: 'Not authorised' }
 
   const { error } = await supabase
     .from('leave_balances')
@@ -33,7 +33,7 @@ export async function updateTotalDays(balanceId: string, totalDays: number) {
 
   const { data: profile } = await supabase
     .from('profiles').select('role').eq('id', user.id).single()
-  if (profile?.role !== 'manager') return { error: 'Not authorised' }
+  if (!profile || !['manager', 'hr_admin'].includes(profile.role)) return { error: 'Not authorised' }
 
   const { error } = await supabase
     .from('leave_balances')
