@@ -12,6 +12,7 @@ import {
   Users,
   ShieldCheck,
   LogOut,
+  Sliders,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
@@ -30,6 +31,7 @@ const employeeNav = [
 const managerNav = [
   { href: '/dashboard/manager', label: 'Manager Overview', icon: ShieldCheck },
   { href: '/dashboard/manager/requests', label: 'All Requests', icon: ClipboardList },
+  { href: '/dashboard/admin/balances', label: 'Leave Balances', icon: Sliders },
   { href: '/dashboard/admin', label: 'Users', icon: Users },
 ]
 
