@@ -42,7 +42,8 @@ export async function submitLeaveRequest(formData: FormData) {
     .eq('year', currentYear)
     .single()
 
-  if (balance) {
+  // Skip balance check for leave types with no cap (total_days = 0, e.g. Unpaid Leave)
+  if (balance && balance.total_days > 0) {
     const remaining = balance.total_days - balance.used_days
     if (daysCount > remaining) {
       return { error: `Insufficient balance. You have ${remaining} day(s) remaining.` }

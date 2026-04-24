@@ -19,7 +19,8 @@ create table if not exists leave_types (
   id uuid default gen_random_uuid() primary key,
   name text not null unique,
   default_days integer not null default 20,
-  color text not null default '#3B82F6',
+  color text not null default '#1F9F70',
+  is_default boolean not null default true,
   created_at timestamptz default now()
 );
 
@@ -137,12 +138,30 @@ create trigger on_auth_user_created
 -- Seed default leave types
 -- ============================================================
 
-insert into leave_types (name, default_days, color) values
-  ('Annual Leave', 20, '#1F9F70'),
-  ('Sick Leave', 10, '#EF4444'),
-  ('Unpaid Leave', 0, '#7A7A7A'),
-  ('Parental Leave', 90, '#078B5B')
-on conflict (name) do nothing;
+-- is_default = true  → auto-seeded for every new user
+-- is_default = false → available but set manually per employee by manager
+insert into leave_types (name, default_days, color, is_default) values
+  -- Auto-seeded defaults
+  ('Annual Leave',              20,  '#1F9F70', true),   -- UK statutory: 20 days (excl. bank holidays)
+  ('Bank Holiday',               8,  '#078B5B', true),   -- 8 UK public holidays
+  ('Sick Leave',                28,  '#EF4444', true),   -- Company sick pay (SSP statutory applies regardless)
+  ('Compassionate Leave',        5,  '#6B7280', true),   -- Employer discretion, common practice
+
+  -- Statutory entitlements (set per employee when relevant)
+  ('Maternity Leave',          260,  '#EC4899', false),  -- 52 weeks statutory (SMP for 39 weeks)
+  ('Paternity Leave',           10,  '#3B82F6', false),  -- 2 weeks statutory (SPP)
+  ('Shared Parental Leave',    250,  '#8B5CF6', false),  -- Up to 50 weeks (ShPP for 37 weeks)
+  ('Adoption Leave',           260,  '#F59E0B', false),  -- 52 weeks statutory (SAP for 39 weeks)
+  ('Parental Bereavement',      14,  '#9CA3AF', false),  -- 2 weeks statutory (Child Bereavement Leave Act 2018)
+
+  -- Employer discretion / unpaid statutory rights
+  ('Marriage/Civil Partnership', 3,  '#F97316', false),  -- Not statutory; employer discretion
+  ('Unpaid Leave',               0,  '#7A7A7A', false),  -- No entitlement; manager approval required
+  ('Emergency Dependants',       0,  '#6B7280', false)   -- Statutory unpaid right (ERA 1996 s.57A)
+on conflict (name) do update set
+  default_days = excluded.default_days,
+  color        = excluded.color,
+  is_default   = excluded.is_default;
 
 -- ============================================================
 -- RPC: increment used days on approval

@@ -15,6 +15,7 @@ export interface LeaveType {
   name: string
   default_days: number
   color: string
+  is_default: boolean
 }
 
 export interface LeaveBalance {

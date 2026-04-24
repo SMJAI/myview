@@ -43,8 +43,11 @@ export async function createUser(formData: FormData) {
   if (error) return { error: error.message }
   if (!newUser.user) return { error: 'Failed to create user' }
 
-  // Seed leave balances for current year
-  const { data: leaveTypes } = await supabase.from('leave_types').select('id, default_days')
+  // Seed leave balances for default types only (annual, bank holiday, sick, compassionate)
+  const { data: leaveTypes } = await supabase
+    .from('leave_types')
+    .select('id, default_days')
+    .eq('is_default', true)
   if (leaveTypes && leaveTypes.length > 0) {
     const year = new Date().getFullYear()
     await supabase.from('leave_balances').insert(
