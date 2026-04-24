@@ -41,7 +41,7 @@ export function RequestsTable({ requests }: RequestsTableProps) {
               <tr key={r.id} className="hover:bg-gray-50">
                 <td className="px-5 py-3.5">
                   <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 text-xs font-semibold shrink-0">
+                    <div className="w-6 h-6 rounded-full bg-brand-100 flex items-center justify-center text-brand-700 text-xs font-semibold shrink-0">
                       {r.profiles?.full_name?.charAt(0).toUpperCase()}
                     </div>
                     <span className="font-medium text-gray-900">{r.profiles?.full_name}</span>
@@ -58,7 +58,7 @@ export function RequestsTable({ requests }: RequestsTableProps) {
                   {r.status === 'pending' && (
                     <button
                       onClick={() => setReviewing(r)}
-                      className="text-xs text-indigo-600 font-medium hover:underline"
+                      className="text-xs text-brand-600 font-medium hover:underline"
                     >
                       Review
                     </button>

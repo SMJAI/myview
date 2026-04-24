@@ -44,7 +44,7 @@ export function ReviewModal({ id, employeeName, onClose }: ReviewModalProps) {
             value={note}
             onChange={(e) => setNote(e.target.value)}
             placeholder="Any comments for the employee…"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 resize-none"
           />
         </div>
 

@@ -30,7 +30,7 @@ export default async function MyRequestsPage() {
         </div>
         <Link
           href="/dashboard/requests/new"
-          className="inline-flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors"
+          className="inline-flex items-center gap-2 bg-brand-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-brand-700 transition-colors"
         >
           <PlusCircle className="w-4 h-4" />
           New Request
@@ -41,7 +41,7 @@ export default async function MyRequestsPage() {
         {!requests || requests.length === 0 ? (
           <div className="p-8 text-center text-gray-500 text-sm">
             No leave requests yet.{' '}
-            <Link href="/dashboard/requests/new" className="text-indigo-600 hover:underline">
+            <Link href="/dashboard/requests/new" className="text-brand-600 hover:underline">
               Submit one now
             </Link>
           </div>

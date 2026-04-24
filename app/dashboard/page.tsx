@@ -43,7 +43,7 @@ export default async function DashboardPage() {
         </div>
         <Link
           href="/dashboard/requests/new"
-          className="inline-flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors"
+          className="inline-flex items-center gap-2 bg-brand-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-brand-700 transition-colors"
         >
           <PlusCircle className="w-4 h-4" />
           New Request
@@ -75,7 +75,7 @@ export default async function DashboardPage() {
                   <p className="text-xs text-gray-500 mt-0.5">of {b.total_days} days remaining</p>
                   <div className="mt-3 h-1.5 bg-gray-100 rounded-full overflow-hidden">
                     <div
-                      className="h-full rounded-full bg-indigo-500 transition-all"
+                      className="h-full rounded-full bg-brand-500 transition-all"
                       style={{ width: `${pct}%` }}
                     />
                   </div>
@@ -90,7 +90,7 @@ export default async function DashboardPage() {
       <div>
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Recent Requests</h2>
-          <Link href="/dashboard/requests" className="text-sm text-indigo-600 hover:underline">
+          <Link href="/dashboard/requests" className="text-sm text-brand-600 hover:underline">
             View all
           </Link>
         </div>
@@ -98,7 +98,7 @@ export default async function DashboardPage() {
           {!recentRequests || recentRequests.length === 0 ? (
             <div className="p-6 text-center text-gray-500 text-sm">
               No leave requests yet.{' '}
-              <Link href="/dashboard/requests/new" className="text-indigo-600 hover:underline">
+              <Link href="/dashboard/requests/new" className="text-brand-600 hover:underline">
                 Submit one now
               </Link>
             </div>

@@ -52,7 +52,7 @@ export default async function AdminPage() {
                 <tr key={u.id} className="hover:bg-gray-50">
                   <td className="px-5 py-3.5">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-semibold text-sm shrink-0">
+                      <div className="w-8 h-8 rounded-full bg-brand-100 flex items-center justify-center text-brand-700 font-semibold text-sm shrink-0">
                         {u.full_name.charAt(0).toUpperCase()}
                       </div>
                       <span className="font-medium text-gray-900">{u.full_name}</span>
@@ -63,7 +63,7 @@ export default async function AdminPage() {
                     <span
                       className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
                         u.role === 'manager'
-                          ? 'bg-indigo-100 text-indigo-700'
+                          ? 'bg-brand-100 text-brand-700'
                           : 'bg-gray-100 text-gray-600'
                       }`}
                     >

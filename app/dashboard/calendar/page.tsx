@@ -59,7 +59,7 @@ export default async function CalendarPage() {
                     className="w-1 self-stretch rounded-full shrink-0"
                     style={{ backgroundColor: r.leave_types?.color ?? '#6B7280' }}
                   />
-                  <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-semibold text-sm shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-brand-100 flex items-center justify-center text-brand-700 font-semibold text-sm shrink-0">
                     {r.profiles?.full_name?.charAt(0).toUpperCase()}
                   </div>
                   <div className="flex-1 min-w-0">

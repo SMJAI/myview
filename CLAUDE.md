@@ -13,6 +13,20 @@
 - **Purpose:** Internal absence management system (leave requests, approvals, balances)
 - **Users:** 4 employees + 1 manager (small team, no multi-tenancy needed)
 
+## Brand Colours (Physio Healing Hands)
+Sourced from https://physiohealinghands.com — defined as `brand-*` in Tailwind via `globals.css @theme`.
+
+| Token | Hex | Usage |
+|---|---|---|
+| `brand-600` | `#1F9F70` | Primary buttons, active nav, links, logo text |
+| `brand-700` | `#078B5B` | Hover state for primary elements |
+| `brand-50` | `#eef9f5` | Light tint backgrounds (active nav item bg) |
+| `brand-100` | `#d1f0e6` | Avatar backgrounds, badge tints |
+| Gray text | `#7A7A7A` | Secondary / muted text |
+| Light bg | `#F0F0F0` | Page section backgrounds |
+
+Never use `indigo-*` — all primary colour classes must use `brand-*`.
+
 ## Tech Stack
 | Layer | Choice |
 |---|---|

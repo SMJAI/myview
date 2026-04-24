@@ -35,7 +35,7 @@ export default async function ManagerPage() {
       label: 'Team Members',
       value: employees?.length ?? 0,
       icon: Users,
-      color: 'text-indigo-600 bg-indigo-50',
+      color: 'text-brand-600 bg-brand-50',
       href: '/dashboard/admin',
     },
     {
@@ -67,7 +67,7 @@ export default async function ManagerPage() {
           <Link
             key={label}
             href={href}
-            className="bg-white rounded-xl border border-gray-200 p-5 hover:border-indigo-200 transition-colors"
+            className="bg-white rounded-xl border border-gray-200 p-5 hover:border-brand-200 transition-colors"
           >
             <div className={`w-10 h-10 rounded-lg flex items-center justify-center mb-3 ${color}`}>
               <Icon className="w-5 h-5" />
@@ -85,7 +85,7 @@ export default async function ManagerPage() {
           {!employees || employees.length === 0 ? (
             <div className="p-6 text-center text-gray-500 text-sm">
               No employees yet.{' '}
-              <Link href="/dashboard/admin" className="text-indigo-600 hover:underline">
+              <Link href="/dashboard/admin" className="text-brand-600 hover:underline">
                 Add users
               </Link>
             </div>
@@ -102,7 +102,7 @@ export default async function ManagerPage() {
                   <tr key={e.id} className="hover:bg-gray-50">
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-3">
-                        <div className="w-7 h-7 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-semibold text-xs">
+                        <div className="w-7 h-7 rounded-full bg-brand-100 flex items-center justify-center text-brand-700 font-semibold text-xs">
                           {e.full_name.charAt(0).toUpperCase()}
                         </div>
                         <span className="font-medium text-gray-900">{e.full_name}</span>

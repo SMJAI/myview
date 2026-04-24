@@ -138,10 +138,10 @@ create trigger on_auth_user_created
 -- ============================================================
 
 insert into leave_types (name, default_days, color) values
-  ('Annual Leave', 20, '#3B82F6'),
+  ('Annual Leave', 20, '#1F9F70'),
   ('Sick Leave', 10, '#EF4444'),
-  ('Unpaid Leave', 0, '#6B7280'),
-  ('Parental Leave', 90, '#8B5CF6')
+  ('Unpaid Leave', 0, '#7A7A7A'),
+  ('Parental Leave', 90, '#078B5B')
 on conflict (name) do nothing;
 
 -- ============================================================

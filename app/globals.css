@@ -1,9 +1,18 @@
 @import "tailwindcss";
 
-:root {
-  --font-geist: 'Geist', sans-serif;
+@theme inline {
+  --font-geist: 'Geist', system-ui, sans-serif;
+
+  /* Physio Healing Hands brand palette */
+  --color-brand-50:  #eef9f5;
+  --color-brand-100: #d1f0e6;
+  --color-brand-200: #a3e1ce;
+  --color-brand-500: #1f9f70;
+  --color-brand-600: #1f9f70;
+  --color-brand-700: #078b5b;
+  --color-brand-800: #065c3d;
 }
 
 body {
-  font-family: var(--font-geist), system-ui, sans-serif;
+  font-family: var(--font-geist);
 }

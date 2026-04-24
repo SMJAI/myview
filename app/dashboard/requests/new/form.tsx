@@ -54,7 +54,7 @@ export function NewRequestForm({ leaveTypes, balances }: NewRequestFormProps) {
           required
           value={selectedTypeId}
           onChange={(e) => setSelectedTypeId(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
         >
           <option value="">Select leave type…</option>
           {leaveTypes.map((lt) => (
@@ -83,7 +83,7 @@ export function NewRequestForm({ leaveTypes, balances }: NewRequestFormProps) {
             min={today}
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
           />
         </div>
         <div>
@@ -97,13 +97,13 @@ export function NewRequestForm({ leaveTypes, balances }: NewRequestFormProps) {
             min={startDate || today}
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
           />
         </div>
       </div>
 
       {workingDays !== null && (
-        <div className="bg-indigo-50 border border-indigo-100 rounded-lg px-4 py-3 text-sm text-indigo-700">
+        <div className="bg-brand-50 border border-brand-100 rounded-lg px-4 py-3 text-sm text-brand-700">
           <span className="font-semibold">{workingDays}</span> working day{workingDays !== 1 ? 's' : ''}
         </div>
       )}
@@ -115,7 +115,7 @@ export function NewRequestForm({ leaveTypes, balances }: NewRequestFormProps) {
           name="reason"
           rows={3}
           placeholder="Any notes for your manager…"
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 resize-none"
         />
       </div>
 
