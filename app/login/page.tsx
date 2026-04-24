@@ -19,6 +19,7 @@ function LoginForm() {
         redirectTo: `${window.location.origin}/auth/callback`,
         queryParams: {
           hd: 'physiohealinghands.com',
+          prompt: 'select_account',
         },
       },
     })
