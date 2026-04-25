@@ -1,7 +1,6 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-import { createAdminClient } from '@/lib/supabase/admin'
 import { countWorkingDays } from '@/lib/utils'
 import { getEnglandBankHolidays } from '@/lib/bank-holidays'
 import { revalidatePath } from 'next/cache'
@@ -54,19 +53,8 @@ export async function submitLeaveRequest(formData: FormData) {
     }
   }
 
-  // Handle optional document upload
-  let documentPath: string | null = null
-  const docFile = formData.get('document') as File | null
-  if (docFile && docFile.size > 0) {
-    const ext = docFile.name.split('.').pop() ?? 'bin'
-    const safeName = docFile.name.replace(/[^a-zA-Z0-9._-]/g, '_')
-    const storagePath = `${user.id}/${Date.now()}_${safeName}`
-    const adminClient = createAdminClient()
-    const { data: uploaded } = await adminClient.storage
-      .from('leave-documents')
-      .upload(storagePath, docFile, { contentType: docFile.type, upsert: false })
-    if (uploaded) documentPath = uploaded.path
-  }
+  // Document was uploaded client-side; just receive the storage path
+  const documentPath = (formData.get('document_path') as string | null) || null
 
   const { error } = await supabase.from('leave_requests').insert({
     user_id: user.id,

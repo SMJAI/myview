@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { submitLeaveRequest } from './actions'
 import { Button } from '@/components/ui/button'
 import { countWorkingDays } from '@/lib/utils'
+import { createClient } from '@/lib/supabase/client'
 import { Paperclip, X } from 'lucide-react'
 import type { LeaveType, LeaveBalance } from '@/lib/types'
 
@@ -36,7 +37,21 @@ export function NewRequestForm({ leaveTypes, balances, bankHolidays }: NewReques
     setError(null)
     setLoading(true)
     const formData = new FormData(e.currentTarget)
-    if (file) formData.set('document', file)
+
+    // Upload file directly from browser to Supabase Storage (no server size limit)
+    if (file) {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_')
+        const path = `${user.id}/${Date.now()}_${safeName}`
+        const { data: uploaded } = await supabase.storage
+          .from('leave-documents')
+          .upload(path, file, { contentType: file.type })
+        if (uploaded) formData.set('document_path', uploaded.path)
+      }
+    }
+
     const result = await submitLeaveRequest(formData)
     if (result?.error) {
       setError(result.error)
