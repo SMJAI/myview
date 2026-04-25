@@ -3,6 +3,8 @@
 import { createClient as createServerClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
+import { getEnglandBankHolidays } from '@/lib/bank-holidays'
+import { proratedBankHolidays } from '@/lib/proration'
 
 async function authorise() {
   const supabase = await createServerClient()
@@ -50,30 +52,30 @@ export async function seedLeaveBalances(userId: string, year: number) {
   if (error) return { error }
 
   const adminClient = createAdminClient()
-  const { data: leaveTypes } = await adminClient
-    .from('leave_types')
-    .select('id, default_days')
-    .eq('is_default', true)
+
+  const [{ data: leaveTypes }, { data: profile }, bankHolidays] = await Promise.all([
+    adminClient.from('leave_types').select('id, name, default_days').eq('is_default', true),
+    adminClient.from('profiles').select('start_date, weekly_hours').eq('id', userId).single(),
+    getEnglandBankHolidays(),
+  ])
 
   if (!leaveTypes || leaveTypes.length === 0) return
 
-  // Only insert balances that don't already exist
   const { data: existing } = await adminClient
-    .from('leave_balances')
-    .select('leave_type_id')
-    .eq('user_id', userId)
-    .eq('year', year)
+    .from('leave_balances').select('leave_type_id').eq('user_id', userId).eq('year', year)
 
   const existingIds = new Set((existing ?? []).map((b: { leave_type_id: string }) => b.leave_type_id))
+
   const toInsert = leaveTypes
     .filter((lt) => !existingIds.has(lt.id))
-    .map((lt) => ({
-      user_id: userId,
-      leave_type_id: lt.id,
-      year,
-      total_days: lt.default_days,
-      used_days: 0,
-    }))
+    .map((lt) => {
+      let totalDays = lt.default_days
+      // Auto-calculate bank holidays from employee start date
+      if (lt.name === 'Bank Holiday' && profile?.start_date) {
+        totalDays = proratedBankHolidays(bankHolidays, profile.start_date, year)
+      }
+      return { user_id: userId, leave_type_id: lt.id, year, total_days: totalDays, used_days: 0 }
+    })
 
   if (toInsert.length > 0) {
     await adminClient.from('leave_balances').insert(toInsert)

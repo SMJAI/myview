@@ -20,7 +20,7 @@ export default async function BalancesPage() {
 
   const [{ data: employees }, { data: leaveTypes }, { data: balances }, bankHolidays] = await Promise.all([
     supabase.from('profiles').select('*').order('full_name'),
-    supabase.from('leave_types').select('*').order('is_default', { ascending: false }).order('name'),
+    supabase.from('leave_types').select('*').eq('show_in_balances', true).order('name'),
     supabase.from('leave_balances').select('*, leave_types(*)').eq('year', selectedYear),
     getEnglandBankHolidays(),
   ])

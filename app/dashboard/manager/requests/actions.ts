@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
 import { sendRequestReviewedNotification } from '@/lib/email'
 
@@ -66,4 +67,17 @@ export async function reviewRequest(
   revalidatePath('/dashboard/manager/requests')
   revalidatePath('/dashboard/manager')
   revalidatePath('/dashboard')
+}
+
+export async function getDocumentSignedUrl(path: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return null
+
+  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  if (!profile || !['manager', 'hr_admin'].includes(profile.role)) return null
+
+  const adminClient = createAdminClient()
+  const { data } = await adminClient.storage.from('leave-documents').createSignedUrl(path, 3600)
+  return data?.signedUrl ?? null
 }

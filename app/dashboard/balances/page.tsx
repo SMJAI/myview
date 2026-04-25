@@ -9,12 +9,14 @@ export default async function MyBalancesPage() {
 
   const year = new Date().getFullYear()
 
-  const { data: balances } = await supabase
+  const { data: balancesRaw } = await supabase
     .from('leave_balances')
     .select('*, leave_types(*)')
     .eq('user_id', user.id)
     .eq('year', year)
     .order('leave_types(name)')
+
+  const balances = (balancesRaw ?? []).filter(b => b.leave_types?.show_in_balances !== false)
 
   return (
     <div className="space-y-6">

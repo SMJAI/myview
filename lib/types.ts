@@ -26,6 +26,7 @@ export interface LeaveType {
   default_days: number
   color: string
   is_default: boolean
+  show_in_balances: boolean
 }
 
 export interface LeaveBalance {
@@ -47,6 +48,7 @@ export interface LeaveRequest {
   end_date: string
   days_count: number
   reason: string | null
+  document_path: string | null
   status: LeaveStatus
   manager_note: string | null
   reviewed_by: string | null

@@ -4,7 +4,9 @@ import { useState } from 'react'
 import { StatusBadge } from '@/components/status-badge'
 import { formatDate } from '@/lib/utils'
 import { ReviewModal } from './review-modal'
+import { getDocumentSignedUrl } from './actions'
 import type { LeaveRequest } from '@/lib/types'
+import { Paperclip } from 'lucide-react'
 
 interface RequestsTableProps {
   requests: LeaveRequest[]
@@ -12,6 +14,14 @@ interface RequestsTableProps {
 
 export function RequestsTable({ requests }: RequestsTableProps) {
   const [reviewing, setReviewing] = useState<LeaveRequest | null>(null)
+  const [loadingDoc, setLoadingDoc] = useState<string | null>(null)
+
+  async function openDocument(requestId: string, path: string) {
+    setLoadingDoc(requestId)
+    const url = await getDocumentSignedUrl(path)
+    setLoadingDoc(null)
+    if (url) window.open(url, '_blank')
+  }
 
   if (requests.length === 0) {
     return (
@@ -55,14 +65,27 @@ export function RequestsTable({ requests }: RequestsTableProps) {
                   <StatusBadge status={r.status} />
                 </td>
                 <td className="px-5 py-3.5">
-                  {r.status === 'pending' && (
-                    <button
-                      onClick={() => setReviewing(r)}
-                      className="text-xs text-brand-600 font-medium hover:underline"
-                    >
-                      Review
-                    </button>
-                  )}
+                  <div className="flex items-center gap-3 justify-end">
+                    {r.document_path && (
+                      <button
+                        onClick={() => openDocument(r.id, r.document_path!)}
+                        disabled={loadingDoc === r.id}
+                        title="View supporting document"
+                        className="flex items-center gap-1 text-xs text-gray-400 hover:text-brand-600 transition-colors disabled:opacity-50"
+                      >
+                        <Paperclip className="w-3.5 h-3.5" />
+                        {loadingDoc === r.id ? 'Opening…' : 'Doc'}
+                      </button>
+                    )}
+                    {r.status === 'pending' && (
+                      <button
+                        onClick={() => setReviewing(r)}
+                        className="text-xs text-brand-600 font-medium hover:underline"
+                      >
+                        Review
+                      </button>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}

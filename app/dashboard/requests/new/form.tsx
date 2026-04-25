@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { submitLeaveRequest } from './actions'
 import { Button } from '@/components/ui/button'
 import { countWorkingDays } from '@/lib/utils'
+import { Paperclip, X } from 'lucide-react'
 import type { LeaveType, LeaveBalance } from '@/lib/types'
 
 interface NewRequestFormProps {
@@ -18,6 +19,7 @@ export function NewRequestForm({ leaveTypes, balances, bankHolidays }: NewReques
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
   const [selectedTypeId, setSelectedTypeId] = useState('')
+  const [file, setFile] = useState<File | null>(null)
 
   const workingDays =
     startDate && endDate && new Date(endDate) >= new Date(startDate)
@@ -34,6 +36,7 @@ export function NewRequestForm({ leaveTypes, balances, bankHolidays }: NewReques
     setError(null)
     setLoading(true)
     const formData = new FormData(e.currentTarget)
+    if (file) formData.set('document', file)
     const result = await submitLeaveRequest(formData)
     if (result?.error) {
       setError(result.error)
@@ -57,9 +60,7 @@ export function NewRequestForm({ leaveTypes, balances, bankHolidays }: NewReques
         >
           <option value="">Select leave type…</option>
           {leaveTypes.map((lt) => (
-            <option key={lt.id} value={lt.id}>
-              {lt.name}
-            </option>
+            <option key={lt.id} value={lt.id}>{lt.name}</option>
           ))}
         </select>
         {selectedTypeId && remainingDays !== null && (
@@ -116,6 +117,33 @@ export function NewRequestForm({ leaveTypes, balances, bankHolidays }: NewReques
           placeholder="Any notes for your manager…"
           className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 resize-none"
         />
+      </div>
+
+      {/* Supporting document */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Supporting document <span className="text-gray-400 font-normal">(optional — e.g. sick certificate)</span>
+        </label>
+        {file ? (
+          <div className="flex items-center gap-2 px-3 py-2 border border-brand-200 bg-brand-50 rounded-lg text-sm">
+            <Paperclip className="w-4 h-4 text-brand-500 shrink-0" />
+            <span className="flex-1 text-brand-700 truncate">{file.name}</span>
+            <button type="button" onClick={() => setFile(null)} className="text-gray-400 hover:text-gray-600">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        ) : (
+          <label className="flex items-center gap-2 px-3 py-2 border border-dashed border-gray-300 rounded-lg text-sm text-gray-500 hover:border-brand-400 hover:text-brand-600 cursor-pointer transition-colors">
+            <Paperclip className="w-4 h-4 shrink-0" />
+            <span>Click to attach PDF, JPG or PNG (max 10MB)</span>
+            <input
+              type="file"
+              accept=".pdf,.jpg,.jpeg,.png"
+              className="sr-only"
+              onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+            />
+          </label>
+        )}
       </div>
 
       {error && (
