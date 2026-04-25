@@ -62,14 +62,14 @@ export async function sendNewRequestNotification({
     if (reason) rows.push(['Reason', reason])
 
     const body = `
-      <p style="margin:0 0 4px;font-size:15px;color:#374151">
+      <p style="margin:0 0 16px;font-size:15px;color:#374151">
         <strong>${employeeName}</strong> has submitted a new leave request.
       </p>
-      ${detailsTable(rows)}
       <a href="https://www.myview.work/dashboard/manager/requests"
-         style="display:inline-block;margin-top:24px;background:#1F9F70;color:white;padding:11px 22px;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px">
+         style="display:inline-block;margin-bottom:24px;background:#1F9F70;color:white;padding:11px 22px;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px">
         Review Request →
       </a>
+      ${detailsTable(rows)}
     `
     await resend.emails.send({
       from: FROM,
@@ -116,15 +116,15 @@ export async function sendRequestReviewedNotification({
     if (managerNote) rows.push(['Manager note', `<em>${managerNote}</em>`])
 
     const body = `
-      <p style="margin:0 0 4px;font-size:15px;color:#374151">
+      <p style="margin:0 0 16px;font-size:15px;color:#374151">
         Hi <strong>${employeeName}</strong>, your leave request has been
         <strong style="color:${color}">${approved ? 'approved' : 'not approved'}</strong>.
       </p>
-      ${detailsTable(rows)}
       <a href="https://www.myview.work/dashboard/requests"
-         style="display:inline-block;margin-top:24px;background:${color};color:white;padding:11px 22px;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px">
+         style="display:inline-block;margin-bottom:24px;background:${color};color:white;padding:11px 22px;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px">
         View My Requests →
       </a>
+      ${detailsTable(rows)}
     `
     await resend.emails.send({
       from: FROM,
