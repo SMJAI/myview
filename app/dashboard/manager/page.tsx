@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { Users, ClipboardList, Clock } from 'lucide-react'
+import { AbsenceInsights } from '@/components/absence-insights'
 import type { Profile, LeaveRequest } from '@/lib/types'
 
 export default async function ManagerPage() {
@@ -18,7 +19,7 @@ export default async function ManagerPage() {
     .eq('id', user.id)
     .single()
 
-  if (profile?.role !== 'manager') redirect('/dashboard')
+  if (!profile || !['manager', 'hr_admin'].includes(profile.role)) redirect('/dashboard')
 
   const [{ data: employees }, { data: pendingRequests }, { data: allRequests }] =
     await Promise.all([
@@ -77,6 +78,9 @@ export default async function ManagerPage() {
           </Link>
         ))}
       </div>
+
+      {/* AI Insights */}
+      <AbsenceInsights />
 
       {/* Team list */}
       <div>

@@ -1,11 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { submitLeaveRequest } from './actions'
+import { suggestLeaveType } from '@/app/dashboard/ai-actions'
 import { Button } from '@/components/ui/button'
 import { countWorkingDays } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/client'
-import { Paperclip, X } from 'lucide-react'
+import { Paperclip, X, Sparkles } from 'lucide-react'
 import type { LeaveType, LeaveBalance } from '@/lib/types'
 
 interface NewRequestFormProps {
@@ -21,6 +22,25 @@ export function NewRequestForm({ leaveTypes, balances, bankHolidays }: NewReques
   const [endDate, setEndDate] = useState('')
   const [selectedTypeId, setSelectedTypeId] = useState('')
   const [file, setFile] = useState<File | null>(null)
+  const [suggestedTypeId, setSuggestedTypeId] = useState<string | null>(null)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  function handleReasonChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
+    const text = e.target.value
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    setSuggestedTypeId(null)
+    if (text.length >= 8) {
+      debounceRef.current = setTimeout(async () => {
+        const id = await suggestLeaveType(text, leaveTypes.map(lt => ({ id: lt.id, name: lt.name })))
+        if (id && id !== selectedTypeId) setSuggestedTypeId(id)
+      }, 700)
+    }
+  }
+
+  // Clear suggestion if user already selected that type
+  useEffect(() => {
+    if (suggestedTypeId === selectedTypeId) setSuggestedTypeId(null)
+  }, [selectedTypeId, suggestedTypeId])
 
   const workingDays =
     startDate && endDate && new Date(endDate) >= new Date(startDate)
@@ -130,8 +150,19 @@ export function NewRequestForm({ leaveTypes, balances, bankHolidays }: NewReques
           name="reason"
           rows={3}
           placeholder="Any notes for your manager…"
+          onChange={handleReasonChange}
           className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 resize-none"
         />
+        {suggestedTypeId && (
+          <button
+            type="button"
+            onClick={() => { setSelectedTypeId(suggestedTypeId); setSuggestedTypeId(null) }}
+            className="mt-1.5 flex items-center gap-1.5 text-xs text-brand-600 hover:text-brand-700 font-medium"
+          >
+            <Sparkles className="w-3 h-3" />
+            AI suggests: <span className="underline">{leaveTypes.find(lt => lt.id === suggestedTypeId)?.name}</span> — apply?
+          </button>
+        )}
       </div>
 
       {/* Supporting document */}

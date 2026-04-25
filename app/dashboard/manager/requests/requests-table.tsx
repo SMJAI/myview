@@ -97,6 +97,7 @@ export function RequestsTable({ requests }: RequestsTableProps) {
         <ReviewModal
           id={reviewing.id}
           employeeName={reviewing.profiles?.full_name ?? 'Employee'}
+          request={reviewing}
           onClose={() => setReviewing(null)}
         />
       )}
