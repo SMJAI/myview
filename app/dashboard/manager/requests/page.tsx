@@ -21,7 +21,7 @@ export default async function AllRequestsPage() {
 
   const { data: requests } = await supabase
     .from('leave_requests')
-    .select('*, profiles(*), leave_types(*)')
+    .select('*, profiles!user_id(*), leave_types(*)')
     .order('created_at', { ascending: false })
 
   return (

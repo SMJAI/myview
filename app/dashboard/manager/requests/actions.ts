@@ -20,7 +20,7 @@ export async function reviewRequest(
 
   const { data: request } = await supabase
     .from('leave_requests')
-    .select('user_id, leave_type_id, days_count, start_date, end_date, profiles(*), leave_types(*)')
+    .select('user_id, leave_type_id, days_count, start_date, end_date, profiles!user_id(*), leave_types(*)')
     .eq('id', id)
     .single()
 

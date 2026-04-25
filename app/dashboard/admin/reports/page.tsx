@@ -40,7 +40,7 @@ export default async function ReportsPage({ searchParams }: Props) {
   if (report === 'requests') {
     let q = supabase
       .from('leave_requests')
-      .select('*, profiles(*), leave_types(*)')
+      .select('*, profiles!user_id(*), leave_types(*)')
       .gte('start_date', from)
       .lte('end_date', to)
       .order('start_date', { ascending: false })
@@ -53,7 +53,7 @@ export default async function ReportsPage({ searchParams }: Props) {
   } else {
     let q = supabase
       .from('leave_balances')
-      .select('*, profiles(*), leave_types(*)')
+      .select('*, profiles!user_id(*), leave_types(*)')
       .eq('year', year)
 
     if (typeId !== 'all') q = q.eq('leave_type_id', typeId)
