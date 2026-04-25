@@ -1,7 +1,7 @@
 import { Resend } from 'resend'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
-const FROM = 'MyView <notifications@myview.work>'
+const FROM = process.env.RESEND_FROM ?? 'MyView <onboarding@resend.dev>'
 
 function fmt(d: string) {
   return new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
