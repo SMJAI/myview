@@ -25,7 +25,14 @@ interface SidebarProps {
   pendingCount?: number
 }
 
-const employeeNav = [
+interface NavItem {
+  href: string
+  label: string
+  icon: React.FC<{ className?: string }>
+  showBadge?: boolean
+}
+
+const employeeNav: NavItem[] = [
   { href: '/dashboard',              label: 'Dashboard',     icon: LayoutDashboard },
   { href: '/dashboard/requests/new', label: 'New Request',   icon: PlusCircle },
   { href: '/dashboard/requests',     label: 'My Requests',   icon: ClipboardList },
@@ -33,13 +40,13 @@ const employeeNav = [
   { href: '/dashboard/calendar',     label: 'Team Calendar', icon: CalendarDays },
 ]
 
-const managerNav = [
+const managerNav: NavItem[] = [
   { href: '/dashboard/manager',          label: 'Overview',      icon: ShieldCheck },
   { href: '/dashboard/manager/requests', label: 'All Requests',  icon: ClipboardList, showBadge: true },
   { href: '/dashboard/manager/balances', label: 'Team Balances', icon: BarChart3 },
 ]
 
-const hrAdminNav = [
+const hrAdminNav: NavItem[] = [
   { href: '/dashboard/manager/requests', label: 'All Requests',   icon: ClipboardList, showBadge: true },
   { href: '/dashboard/admin/balances',   label: 'Leave Balances', icon: Sliders },
   { href: '/dashboard/admin/reports',    label: 'Reports',        icon: FileBarChart2 },
@@ -48,7 +55,7 @@ const hrAdminNav = [
 
 type ViewKey = 'employee' | 'admin'
 
-const ROLE_CONFIG: Record<string, { label: string; nav: { href: string; label: string; icon: React.FC<{ className?: string }>; showBadge?: boolean }[] }> = {
+const ROLE_CONFIG: Record<string, { label: string; nav: NavItem[] }> = {
   manager:  { label: 'Manager',  nav: managerNav },
   hr_admin: { label: 'HR Admin', nav: hrAdminNav },
 }
