@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { updateUserProfile } from './actions'
+import { updateUserProfile, deleteUser } from './actions'
 import { Button } from '@/components/ui/button'
 import type { Profile } from '@/lib/types'
 
@@ -23,6 +23,8 @@ export function EditUserForm({ user }: EditUserFormProps) {
     user.weekly_hours != null ? String(user.weekly_hours) : '37.5'
   )
   const [saving, setSaving] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   async function handleSave() {
@@ -40,6 +42,18 @@ export function EditUserForm({ user }: EditUserFormProps) {
       setOpen(false)
       setSaving(false)
     }
+  }
+
+  async function handleDelete() {
+    setDeleting(true)
+    setError(null)
+    const result = await deleteUser(user.id)
+    if (result?.error) {
+      setError(String(result.error))
+      setDeleting(false)
+      setConfirmDelete(false)
+    }
+    // Page revalidates automatically — modal closes as user row disappears
   }
 
   if (!open) {
@@ -113,14 +127,49 @@ export function EditUserForm({ user }: EditUserFormProps) {
           </div>
         )}
 
-        <div className="flex gap-3 pt-1">
-          <Button onClick={handleSave} disabled={saving}>
-            {saving ? 'Saving…' : 'Save'}
-          </Button>
-          <Button variant="secondary" onClick={() => setOpen(false)} disabled={saving}>
-            Cancel
-          </Button>
-        </div>
+        {confirmDelete ? (
+          <div className="bg-red-50 border border-red-200 rounded-xl p-4 space-y-3">
+            <p className="text-sm text-red-700 font-medium">
+              Remove <strong>{user.full_name}</strong> ({user.email})?
+            </p>
+            <p className="text-xs text-red-500">
+              This permanently deletes their account and all associated data. This cannot be undone.
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={handleDelete}
+                disabled={deleting}
+                className="px-3 py-1.5 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 disabled:opacity-50"
+              >
+                {deleting ? 'Removing…' : 'Yes, remove'}
+              </button>
+              <button
+                onClick={() => setConfirmDelete(false)}
+                disabled={deleting}
+                className="px-3 py-1.5 bg-white border border-gray-300 text-sm font-medium rounded-lg hover:bg-gray-50 disabled:opacity-50"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="flex items-center justify-between pt-1">
+            <div className="flex gap-3">
+              <Button onClick={handleSave} disabled={saving}>
+                {saving ? 'Saving…' : 'Save'}
+              </Button>
+              <Button variant="secondary" onClick={() => setOpen(false)} disabled={saving}>
+                Cancel
+              </Button>
+            </div>
+            <button
+              onClick={() => setConfirmDelete(true)}
+              className="text-xs text-red-400 hover:text-red-600 transition-colors"
+            >
+              Remove user
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )

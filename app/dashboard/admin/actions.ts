@@ -81,3 +81,18 @@ export async function seedLeaveBalances(userId: string, year: number) {
 
   revalidatePath('/dashboard/admin/balances')
 }
+
+export async function deleteUser(userId: string) {
+  const { user, error } = await authorise()
+  if (error || !user) return { error }
+
+  if (user.id === userId) return { error: 'You cannot remove your own account.' }
+
+  const adminClient = createAdminClient()
+
+  // Delete auth user — profiles row cascades via FK
+  const { error: authError } = await adminClient.auth.admin.deleteUser(userId)
+  if (authError) return { error: authError.message }
+
+  revalidatePath('/dashboard/admin')
+}
