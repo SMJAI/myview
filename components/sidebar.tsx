@@ -65,9 +65,16 @@ export function Sidebar({ profile, pendingCount = 0 }: SidebarProps) {
   const [employeeMode, setEmployeeMode] = useState(false)
 
   useEffect(() => {
-    const stored = localStorage.getItem(storageKey)
-    if (stored === 'true') setEmployeeMode(true)
-  }, [storageKey])
+    const onManagerRoute = pathname.startsWith('/dashboard/manager') || pathname.startsWith('/dashboard/admin')
+    if (onManagerRoute) {
+      // Auto-exit employee mode when navigating to elevated-access pages
+      localStorage.setItem(storageKey, 'false')
+      setEmployeeMode(false)
+    } else {
+      const stored = localStorage.getItem(storageKey)
+      if (stored === 'true') setEmployeeMode(true)
+    }
+  }, [storageKey, pathname])
 
   function toggleMode() {
     const next = !employeeMode
