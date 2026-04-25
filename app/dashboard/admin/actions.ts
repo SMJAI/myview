@@ -1,19 +1,20 @@
 'use server'
 
 import { createClient as createServerClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
 
 async function authorise() {
   const supabase = await createServerClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return { supabase: null, user: null, error: 'Unauthorized' as const }
+  if (!user) return { user: null, error: 'Unauthorized' as const }
 
   const { data: profile } = await supabase
     .from('profiles').select('role').eq('id', user.id).single()
   if (!profile || !['manager', 'hr_admin'].includes(profile.role)) {
-    return { supabase: null, user: null, error: 'Not authorised' as const }
+    return { user: null, error: 'Not authorised' as const }
   }
-  return { supabase, user, error: null }
+  return { user, error: null }
 }
 
 export async function updateUserProfile(
@@ -24,10 +25,12 @@ export async function updateUserProfile(
     weekly_hours: number | null
   }
 ) {
-  const { supabase, error } = await authorise()
-  if (error || !supabase) return { error }
+  const { error } = await authorise()
+  if (error) return { error }
 
-  const { error: dbError } = await supabase
+  // Use service role client to bypass RLS when updating another user's profile
+  const adminClient = createAdminClient()
+  const { error: dbError } = await adminClient
     .from('profiles')
     .update({
       role: updates.role,
@@ -43,10 +46,11 @@ export async function updateUserProfile(
 }
 
 export async function seedLeaveBalances(userId: string, year: number) {
-  const { supabase, error } = await authorise()
-  if (error || !supabase) return { error }
+  const { error } = await authorise()
+  if (error) return { error }
 
-  const { data: leaveTypes } = await supabase
+  const adminClient = createAdminClient()
+  const { data: leaveTypes } = await adminClient
     .from('leave_types')
     .select('id, default_days')
     .eq('is_default', true)
@@ -54,7 +58,7 @@ export async function seedLeaveBalances(userId: string, year: number) {
   if (!leaveTypes || leaveTypes.length === 0) return
 
   // Only insert balances that don't already exist
-  const { data: existing } = await supabase
+  const { data: existing } = await adminClient
     .from('leave_balances')
     .select('leave_type_id')
     .eq('user_id', userId)
@@ -72,7 +76,7 @@ export async function seedLeaveBalances(userId: string, year: number) {
     }))
 
   if (toInsert.length > 0) {
-    await supabase.from('leave_balances').insert(toInsert)
+    await adminClient.from('leave_balances').insert(toInsert)
   }
 
   revalidatePath('/dashboard/admin/balances')
