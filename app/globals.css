@@ -3,7 +3,6 @@
 @theme inline {
   --font-geist: 'Geist', system-ui, sans-serif;
 
-  /* Physio Healing Hands brand palette */
   --color-brand-50:  #eef9f5;
   --color-brand-100: #d1f0e6;
   --color-brand-200: #a3e1ce;
@@ -11,6 +10,7 @@
   --color-brand-600: #1f9f70;
   --color-brand-700: #078b5b;
   --color-brand-800: #065c3d;
+  --color-brand-900: #041f14;
 }
 
 body {
@@ -20,4 +20,31 @@ body {
 @keyframes slideIn {
   from { opacity: 0; transform: translateX(1rem); }
   to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes blob {
+  0%, 100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+  33%       { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
+  66%       { border-radius: 50% 30% 50% 50% / 40% 50% 70% 50%; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-14px); }
+}
+
+.animate-blob {
+  animation: blob 10s ease-in-out infinite;
+  will-change: border-radius;
+}
+.animate-blob-slow {
+  animation: blob 14s ease-in-out 3s infinite;
+  will-change: border-radius;
+}
+.animate-blob-slower {
+  animation: blob 18s ease-in-out 6s infinite;
+  will-change: border-radius;
+}
+.animate-float {
+  animation: float 5s ease-in-out infinite;
 }
