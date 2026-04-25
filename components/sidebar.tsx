@@ -102,7 +102,7 @@ export function Sidebar({ profile, pendingCount = 0 }: SidebarProps) {
     : 'Employee'
 
   return (
-    <aside className="w-64 min-h-screen bg-white border-r border-gray-200 flex flex-col">
+    <aside className="w-64 h-screen sticky top-0 bg-white border-r border-gray-200 flex flex-col overflow-hidden">
 
       {/* Logo */}
       <div className="px-5 py-4 border-b border-gray-100">
@@ -151,7 +151,7 @@ export function Sidebar({ profile, pendingCount = 0 }: SidebarProps) {
       )}
 
       {/* Nav */}
-      <nav className="flex-1 px-3 py-2 space-y-0.5">
+      <nav className="flex-1 px-3 py-2 space-y-0.5 overflow-y-auto">
         {activeNav.map(({ href, label, icon: Icon, showBadge }) => {
           const active = pathname === href
           return (
