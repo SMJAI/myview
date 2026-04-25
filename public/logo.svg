@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <path id="topArc" d="M 14,100 A 86,86 0 0,1 186,100"/>
+    <path id="botArc" d="M 14,100 A 86,86 0 0,0 186,100"/>
+  </defs>
+
+  <!-- White disc background -->
+  <circle cx="100" cy="100" r="99" fill="white"/>
+
+  <!-- Outer border ring -->
+  <circle cx="100" cy="100" r="95" fill="none" stroke="#1F9F70" stroke-width="4"/>
+
+  <!-- Inner separator ring -->
+  <circle cx="100" cy="100" r="76" fill="none" stroke="#1F9F70" stroke-width="1.5"/>
+
+  <!-- "PHYSIO" along top arc -->
+  <text font-family="Georgia,'Times New Roman',serif" font-weight="bold" font-size="14" fill="#1F9F70" letter-spacing="6">
+    <textPath href="#topArc" startOffset="50%" text-anchor="middle">PHYSIO</textPath>
+  </text>
+
+  <!-- "HEALING HANDS" along bottom arc -->
+  <text font-family="Georgia,'Times New Roman',serif" font-weight="bold" font-size="11" fill="#1F9F70" letter-spacing="3">
+    <textPath href="#botArc" startOffset="50%" text-anchor="middle">HEALING HANDS</textPath>
+  </text>
+
+  <!-- Left hand (palm up, fingers pointing up) -->
+  <g fill="#1F9F70">
+    <!-- Palm -->
+    <rect x="53" y="97" width="37" height="18" rx="5"/>
+    <!-- Pinky -->
+    <rect x="55" y="71" width="7" height="28" rx="3.5"/>
+    <!-- Ring -->
+    <rect x="64" y="68" width="7" height="31" rx="3.5"/>
+    <!-- Middle -->
+    <rect x="73" y="66" width="7" height="33" rx="3.5"/>
+    <!-- Index -->
+    <rect x="82" y="69" width="7" height="30" rx="3.5"/>
+    <!-- Thumb -->
+    <rect x="40" y="100" width="15" height="7" rx="3.5" transform="rotate(-25,47,103.5)"/>
+  </g>
+
+  <!-- Right hand (mirror of left hand around x=100) -->
+  <g fill="#1F9F70" transform="matrix(-1,0,0,1,200,0)">
+    <rect x="53" y="97" width="37" height="18" rx="5"/>
+    <rect x="55" y="71" width="7" height="28" rx="3.5"/>
+    <rect x="64" y="68" width="7" height="31" rx="3.5"/>
+    <rect x="73" y="66" width="7" height="33" rx="3.5"/>
+    <rect x="82" y="69" width="7" height="30" rx="3.5"/>
+    <rect x="40" y="100" width="15" height="7" rx="3.5" transform="rotate(-25,47,103.5)"/>
+  </g>
+</svg>

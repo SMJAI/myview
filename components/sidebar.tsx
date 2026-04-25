@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import type { Profile } from '@/lib/types'
@@ -90,9 +91,14 @@ export function Sidebar({ profile }: SidebarProps) {
   return (
     <aside className="w-64 min-h-screen bg-white border-r border-gray-200 flex flex-col">
       {/* Logo */}
-      <div className="px-6 py-5 border-b border-gray-200">
-        <h1 className="text-xl font-bold text-brand-600">MyView</h1>
-        <p className="text-xs text-gray-500 mt-0.5">Physio Healing Hands</p>
+      <div className="px-4 py-4 border-b border-gray-200">
+        <div className="flex items-center gap-3">
+          <Image src="/logo.svg" alt="Physio Healing Hands" width={40} height={40} className="shrink-0" />
+          <div>
+            <p className="text-base font-bold text-brand-600 leading-tight">MyView</p>
+            <p className="text-xs text-gray-400 leading-tight">Physio Healing Hands</p>
+          </div>
+        </div>
       </div>
 
       {/* Nav */}
