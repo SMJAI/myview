@@ -29,8 +29,6 @@ export function NewRequestForm({ leaveTypes, balances, bankHolidays }: NewReques
     ? selectedBalance.total_days - selectedBalance.used_days
     : null
 
-  const today = new Date().toISOString().split('T')[0]
-
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setError(null)
@@ -81,9 +79,8 @@ export function NewRequestForm({ leaveTypes, balances, bankHolidays }: NewReques
             type="date"
             name="start_date"
             required
-            min={today}
             value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
+            onChange={(e) => { setStartDate(e.target.value); if (endDate && e.target.value > endDate) setEndDate(e.target.value) }}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
           />
         </div>
@@ -95,7 +92,7 @@ export function NewRequestForm({ leaveTypes, balances, bankHolidays }: NewReques
             type="date"
             name="end_date"
             required
-            min={startDate || today}
+            min={startDate || undefined}
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
