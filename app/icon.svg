@@ -1,27 +1,24 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <!-- Green background circle -->
-  <circle cx="32" cy="32" r="32" fill="#1F9F70"/>
+  <!-- Green rounded square background -->
+  <rect width="64" height="64" rx="14" fill="#1F9F70"/>
 
   <!-- Left hand (white, simplified) -->
   <g fill="white">
-    <!-- Palm -->
-    <rect x="10" y="36" width="18" height="9" rx="3"/>
-    <!-- Fingers -->
-    <rect x="11" y="22" width="3.5" height="15" rx="1.75"/>
-    <rect x="15.5" y="20" width="3.5" height="17" rx="1.75"/>
-    <rect x="20" y="19" width="3.5" height="18" rx="1.75"/>
-    <rect x="24.5" y="21" width="3.5" height="16" rx="1.75"/>
-    <!-- Thumb -->
-    <rect x="6" y="37" width="6" height="3.5" rx="1.75" transform="rotate(-25,9,38.75)"/>
+    <rect x="9"  y="22" width="4"  height="18" rx="2"/>
+    <rect x="14" y="19" width="4.5" height="21" rx="2.25"/>
+    <rect x="19.5" y="18" width="4.5" height="22" rx="2.25"/>
+    <rect x="25" y="19" width="4"  height="21" rx="2"/>
+    <rect x="8"  y="37" width="23" height="12" rx="4"/>
+    <rect x="29" y="41" width="4"  height="9"  rx="2" transform="rotate(20,31,45.5)"/>
   </g>
 
-  <!-- Right hand (mirror of left hand) -->
-  <g fill="white" transform="matrix(-1,0,0,1,64,0)">
-    <rect x="10" y="36" width="18" height="9" rx="3"/>
-    <rect x="11" y="22" width="3.5" height="15" rx="1.75"/>
-    <rect x="15.5" y="20" width="3.5" height="17" rx="1.75"/>
-    <rect x="20" y="19" width="3.5" height="18" rx="1.75"/>
-    <rect x="24.5" y="21" width="3.5" height="16" rx="1.75"/>
-    <rect x="6" y="37" width="6" height="3.5" rx="1.75" transform="rotate(-25,9,38.75)"/>
+  <!-- Right hand (mirror) -->
+  <g fill="white" transform="translate(64,0) scale(-1,1)">
+    <rect x="9"  y="22" width="4"  height="18" rx="2"/>
+    <rect x="14" y="19" width="4.5" height="21" rx="2.25"/>
+    <rect x="19.5" y="18" width="4.5" height="22" rx="2.25"/>
+    <rect x="25" y="19" width="4"  height="21" rx="2"/>
+    <rect x="8"  y="37" width="23" height="12" rx="4"/>
+    <rect x="29" y="41" width="4"  height="9"  rx="2" transform="rotate(20,31,45.5)"/>
   </g>
 </svg>
