@@ -47,7 +47,7 @@ function LoginForm() {
 
         <div className="relative z-10 flex flex-col items-center text-center max-w-xs">
           <Image
-            src="/logo.svg"
+            src="/logo.png"
             alt="Physio Healing Hands"
             width={160}
             height={160}
@@ -75,7 +75,7 @@ function LoginForm() {
           {/* Mobile-only logo */}
           <div className="lg:hidden text-center mb-10">
             <Image
-              src="/logo.svg"
+              src="/logo.png"
               alt="Physio Healing Hands"
               width={96}
               height={96}

@@ -100,7 +100,7 @@ export function Sidebar({ profile, pendingCount = 0 }: SidebarProps) {
       {/* Logo */}
       <div className="px-4 py-4 border-b border-gray-200">
         <div className="flex items-center gap-3">
-          <Image src="/logo.svg" alt="Physio Healing Hands" width={40} height={40} className="shrink-0" />
+          <Image src="/logo.png" alt="Physio Healing Hands" width={40} height={40} className="shrink-0" />
           <div>
             <p className="text-base font-bold text-brand-600 leading-tight">MyView</p>
             <p className="text-xs text-gray-400 leading-tight">Physio Healing Hands</p>
