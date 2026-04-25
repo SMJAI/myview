@@ -1,15 +1,13 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { Sidebar } from '@/components/sidebar'
+import { Toaster } from '@/components/toaster'
 import type { Profile } from '@/lib/types'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
+  const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
   let { data: profile } = await supabase
@@ -18,7 +16,6 @@ export default async function DashboardLayout({ children }: { children: React.Re
     .eq('id', user.id)
     .single()
 
-  // Profile missing — create it now (handles trigger failures or race conditions)
   if (!profile) {
     const fullName =
       user.user_metadata?.full_name ||
@@ -37,12 +34,24 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   if (!profile) redirect('/login')
 
+  const canSeeManagerNav = profile.role === 'manager' || profile.role === 'hr_admin'
+
+  let pendingCount = 0
+  if (canSeeManagerNav) {
+    const { count } = await supabase
+      .from('leave_requests')
+      .select('id', { count: 'exact', head: true })
+      .eq('status', 'pending')
+    pendingCount = count ?? 0
+  }
+
   return (
     <div className="flex min-h-screen">
-      <Sidebar profile={profile as Profile} />
+      <Sidebar profile={profile as Profile} pendingCount={pendingCount} />
       <main className="flex-1 overflow-y-auto">
         <div className="max-w-5xl mx-auto px-6 py-8">{children}</div>
       </main>
+      <Toaster />
     </div>
   )
 }

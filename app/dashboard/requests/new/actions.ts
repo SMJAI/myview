@@ -5,6 +5,7 @@ import { countWorkingDays } from '@/lib/utils'
 import { getEnglandBankHolidays } from '@/lib/bank-holidays'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+import { sendNewRequestNotification } from '@/lib/email'
 
 export async function submitLeaveRequest(formData: FormData) {
   const supabase = await createClient()
@@ -63,6 +64,23 @@ export async function submitLeaveRequest(formData: FormData) {
   })
 
   if (error) return { error: error.message }
+
+  // Notify managers/hr_admin
+  const [{ data: employeeProfile }, { data: leaveType }, { data: managers }] = await Promise.all([
+    supabase.from('profiles').select('full_name, email').eq('id', user.id).single(),
+    supabase.from('leave_types').select('name').eq('id', leaveTypeId).single(),
+    supabase.from('profiles').select('email').in('role', ['manager', 'hr_admin']),
+  ])
+  const managerEmails = (managers ?? []).map((m: { email: string }) => m.email).filter(Boolean)
+  await sendNewRequestNotification({
+    employeeName: employeeProfile?.full_name ?? 'Team member',
+    leaveType: leaveType?.name ?? 'Leave',
+    startDate,
+    endDate,
+    daysCount,
+    reason: reason || null,
+    managerEmails,
+  })
 
   revalidatePath('/dashboard')
   revalidatePath('/dashboard/requests')

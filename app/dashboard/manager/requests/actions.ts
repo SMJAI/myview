@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { sendRequestReviewedNotification } from '@/lib/email'
 
 export async function reviewRequest(
   id: string,
@@ -10,23 +11,16 @@ export async function reviewRequest(
 ) {
   const supabase = await createClient()
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Unauthorized' }
 
   const { data: profile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single()
-
+    .from('profiles').select('role').eq('id', user.id).single()
   if (!profile || !['manager', 'hr_admin'].includes(profile.role)) return { error: 'Not authorised' }
 
-  // Get the request to update balance if approved
   const { data: request } = await supabase
     .from('leave_requests')
-    .select('user_id, leave_type_id, days_count, start_date')
+    .select('user_id, leave_type_id, days_count, start_date, end_date, profiles(*), leave_types(*)')
     .eq('id', id)
     .single()
 
@@ -44,7 +38,6 @@ export async function reviewRequest(
 
   if (error) return { error: error.message }
 
-  // Deduct from balance when approved
   if (status === 'approved') {
     const year = new Date(request.start_date).getFullYear()
     await supabase.rpc('increment_used_days', {
@@ -52,6 +45,21 @@ export async function reviewRequest(
       p_leave_type_id: request.leave_type_id,
       p_year: year,
       p_days: request.days_count,
+    })
+  }
+
+  // Notify employee by email
+  const emp = request.profiles as { email?: string; full_name?: string } | null
+  if (emp?.email) {
+    await sendRequestReviewedNotification({
+      employeeEmail: emp.email,
+      employeeName: emp.full_name ?? 'Team member',
+      leaveType: (request.leave_types as { name?: string } | null)?.name ?? 'Leave',
+      startDate: request.start_date,
+      endDate: request.end_date,
+      daysCount: request.days_count,
+      status,
+      managerNote: managerNote || null,
     })
   }
 

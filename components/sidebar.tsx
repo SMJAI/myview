@@ -25,6 +25,7 @@ import { useState, useEffect } from 'react'
 
 interface SidebarProps {
   profile: Profile
+  pendingCount?: number
 }
 
 const employeeNav = [
@@ -37,23 +38,23 @@ const employeeNav = [
 
 const managerNav = [
   { href: '/dashboard/manager', label: 'Manager Overview', icon: ShieldCheck },
-  { href: '/dashboard/manager/requests', label: 'All Requests', icon: ClipboardList },
+  { href: '/dashboard/manager/requests', label: 'All Requests', icon: ClipboardList, showBadge: true },
   { href: '/dashboard/manager/balances', label: 'Team Balances', icon: BarChart3 },
 ]
 
 const hrAdminNav = [
-  { href: '/dashboard/manager/requests', label: 'All Requests', icon: ClipboardList },
+  { href: '/dashboard/manager/requests', label: 'All Requests', icon: ClipboardList, showBadge: true },
   { href: '/dashboard/admin/balances', label: 'Leave Balances', icon: Sliders },
   { href: '/dashboard/admin/reports', label: 'Reports', icon: FileBarChart2 },
   { href: '/dashboard/admin', label: 'Users', icon: Users },
 ]
 
-const ROLE_SECTION: Record<string, { label: string; nav: typeof managerNav }> = {
+const ROLE_SECTION: Record<string, { label: string; nav: { href: string; label: string; icon: React.FC<{ className?: string }>; showBadge?: boolean }[] }> = {
   manager:  { label: 'Manager',  nav: managerNav },
   hr_admin: { label: 'HR Admin', nav: hrAdminNav },
 }
 
-export function Sidebar({ profile }: SidebarProps) {
+export function Sidebar({ profile, pendingCount = 0 }: SidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
   const supabase = createClient()
@@ -61,7 +62,6 @@ export function Sidebar({ profile }: SidebarProps) {
 
   const hasAdminSection = profile.role in ROLE_SECTION
 
-  // Default to false (full view) — read from localStorage on mount
   const [employeeMode, setEmployeeMode] = useState(false)
 
   useEffect(() => {
@@ -126,7 +126,7 @@ export function Sidebar({ profile }: SidebarProps) {
                 {section.label}
               </p>
             </div>
-            {section.nav.map(({ href, label, icon: Icon }) => (
+            {section.nav.map(({ href, label, icon: Icon, showBadge }) => (
               <Link
                 key={href}
                 href={href}
@@ -138,14 +138,19 @@ export function Sidebar({ profile }: SidebarProps) {
                 )}
               >
                 <Icon className="w-4 h-4 shrink-0" />
-                {label}
+                <span className="flex-1">{label}</span>
+                {showBadge && pendingCount > 0 && (
+                  <span className="ml-auto bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 leading-none">
+                    {pendingCount}
+                  </span>
+                )}
               </Link>
             ))}
           </>
         )}
       </nav>
 
-      {/* Mode toggle for manager / hr_admin */}
+      {/* Mode toggle */}
       {hasAdminSection && (
         <div className="px-4 pb-2">
           <button
