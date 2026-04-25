@@ -32,15 +32,10 @@ export function NewRequestForm({ leaveTypes, balances, bankHolidays }: NewReques
     if (text.length >= 8) {
       debounceRef.current = setTimeout(async () => {
         const id = await suggestLeaveType(text, leaveTypes.map(lt => ({ id: lt.id, name: lt.name })))
-        if (id && id !== selectedTypeId) setSuggestedTypeId(id)
+        if (id) setSuggestedTypeId(id)
       }, 700)
     }
   }
-
-  // Clear suggestion if user already selected that type
-  useEffect(() => {
-    if (suggestedTypeId === selectedTypeId) setSuggestedTypeId(null)
-  }, [selectedTypeId, suggestedTypeId])
 
   const workingDays =
     startDate && endDate && new Date(endDate) >= new Date(startDate)
@@ -154,14 +149,21 @@ export function NewRequestForm({ leaveTypes, balances, bankHolidays }: NewReques
           className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 resize-none"
         />
         {suggestedTypeId && (
-          <button
-            type="button"
-            onClick={() => { setSelectedTypeId(suggestedTypeId); setSuggestedTypeId(null) }}
-            className="mt-1.5 flex items-center gap-1.5 text-xs text-brand-600 hover:text-brand-700 font-medium"
-          >
-            <Sparkles className="w-3 h-3" />
-            AI suggests: <span className="underline">{leaveTypes.find(lt => lt.id === suggestedTypeId)?.name}</span> — apply?
-          </button>
+          suggestedTypeId === selectedTypeId ? (
+            <p className="mt-1.5 flex items-center gap-1.5 text-xs text-brand-600 font-medium">
+              <Sparkles className="w-3 h-3" />
+              AI confirms: <span className="font-semibold">{leaveTypes.find(lt => lt.id === suggestedTypeId)?.name}</span> looks right
+            </p>
+          ) : (
+            <button
+              type="button"
+              onClick={() => { setSelectedTypeId(suggestedTypeId); setSuggestedTypeId(null) }}
+              className="mt-1.5 flex items-center gap-1.5 text-xs text-brand-600 hover:text-brand-700 font-medium"
+            >
+              <Sparkles className="w-3 h-3" />
+              AI suggests: <span className="underline">{leaveTypes.find(lt => lt.id === suggestedTypeId)?.name}</span> — apply?
+            </button>
+          )
         )}
       </div>
 

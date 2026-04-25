@@ -47,6 +47,7 @@ const managerNav: NavItem[] = [
 ]
 
 const hrAdminNav: NavItem[] = [
+  { href: '/dashboard/manager',          label: 'Overview',       icon: ShieldCheck },
   { href: '/dashboard/manager/requests', label: 'All Requests',   icon: ClipboardList, showBadge: true },
   { href: '/dashboard/admin/balances',   label: 'Leave Balances', icon: Sliders },
   { href: '/dashboard/admin/reports',    label: 'Reports',        icon: FileBarChart2 },
