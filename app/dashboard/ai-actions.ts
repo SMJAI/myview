@@ -20,6 +20,17 @@ Reply with ONLY the single most appropriate leave type name from the list, nothi
   } catch { return null }
 }
 
+// ── Feature 2b: Autocomplete reason text ─────────────────────────────────────
+export async function autocompleteReason(text: string): Promise<string> {
+  if (!process.env.ANTHROPIC_API_KEY || text.length < 5) return ''
+  try {
+    return await ask(
+      `Continue this leave request reason naturally in 5-8 words. Reply ONLY with the continuation, no quotes, no repetition.
+Text so far: "${text}"`
+    )
+  } catch { return '' }
+}
+
 // ── Feature 3: Detect absence patterns across all employees ──────────────────
 export async function detectAbsencePatterns(): Promise<string[]> {
   if (!process.env.ANTHROPIC_API_KEY) return []

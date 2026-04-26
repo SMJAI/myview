@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react'
 import { submitLeaveRequest } from './actions'
-import { suggestLeaveType } from '@/app/dashboard/ai-actions'
+import { suggestLeaveType, autocompleteReason } from '@/app/dashboard/ai-actions'
 import { Button } from '@/components/ui/button'
 import { countWorkingDays } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/client'
@@ -22,16 +22,37 @@ export function NewRequestForm({ leaveTypes, balances, bankHolidays }: NewReques
   const [endDate, setEndDate] = useState('')
   const [selectedTypeId, setSelectedTypeId] = useState('')
   const [file, setFile] = useState<File | null>(null)
+  const [autocomplete, setAutocomplete] = useState('')
+  const [aiJustSelected, setAiJustSelected] = useState(false)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   function handleReasonChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
     const text = e.target.value
     if (debounceRef.current) clearTimeout(debounceRef.current)
-    if (text.length >= 8) {
+    setAutocomplete('')
+    if (text.length >= 5) {
       debounceRef.current = setTimeout(async () => {
-        const id = await suggestLeaveType(text, leaveTypes.map(lt => ({ id: lt.id, name: lt.name })))
-        if (id) setSelectedTypeId(id)
-      }, 700)
+        const [id, completion] = await Promise.all([
+          text.length >= 8 ? suggestLeaveType(text, leaveTypes.map(lt => ({ id: lt.id, name: lt.name }))) : null,
+          autocompleteReason(text),
+        ])
+        if (id) {
+          setSelectedTypeId(id)
+          setAiJustSelected(true)
+          setTimeout(() => setAiJustSelected(false), 1500)
+        }
+        if (completion) setAutocomplete(completion)
+      }, 600)
+    }
+  }
+
+  function handleReasonKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
+    if (e.key === 'Tab' && autocomplete) {
+      e.preventDefault()
+      const el = e.currentTarget
+      el.value = el.value + autocomplete
+      setAutocomplete('')
+      handleReasonChange({ target: el } as React.ChangeEvent<HTMLTextAreaElement>)
     }
   }
 
@@ -83,8 +104,10 @@ export function NewRequestForm({ leaveTypes, balances, bankHolidays }: NewReques
           name="leave_type_id"
           required
           value={selectedTypeId}
-          onChange={(e) => setSelectedTypeId(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+          onChange={(e) => { setSelectedTypeId(e.target.value); setAiJustSelected(false) }}
+          className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all duration-300 ${
+            aiJustSelected ? 'border-brand-400 ring-2 ring-brand-100' : 'border-gray-300'
+          }`}
         >
           <option value="">Select leave type…</option>
           {leaveTypes.map((lt) => (
@@ -144,8 +167,15 @@ export function NewRequestForm({ leaveTypes, balances, bankHolidays }: NewReques
           rows={3}
           placeholder="Any notes for your manager…"
           onChange={handleReasonChange}
+          onKeyDown={handleReasonKeyDown}
           className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 resize-none"
         />
+        {autocomplete && (
+          <div className="flex items-center gap-2 mt-1 px-1">
+            <span className="text-xs text-gray-400 italic truncate">{autocomplete}</span>
+            <kbd className="shrink-0 text-[10px] text-gray-300 border border-gray-200 rounded px-1 py-0.5 font-mono leading-none">Tab</kbd>
+          </div>
+        )}
       </div>
 
       {/* Supporting document */}
