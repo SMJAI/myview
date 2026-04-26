@@ -22,12 +22,12 @@ export function NewRequestForm({ leaveTypes, balances, bankHolidays }: NewReques
   const [endDate, setEndDate] = useState('')
   const [selectedTypeId, setSelectedTypeId] = useState('')
   const [file, setFile] = useState<File | null>(null)
+  const [reasonText, setReasonText] = useState('')
   const [autocomplete, setAutocomplete] = useState('')
   const [aiJustSelected, setAiJustSelected] = useState(false)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  function handleReasonChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
-    const text = e.target.value
+  function runAiSuggestions(text: string) {
     if (debounceRef.current) clearTimeout(debounceRef.current)
     setAutocomplete('')
     if (text.length >= 5) {
@@ -46,13 +46,18 @@ export function NewRequestForm({ leaveTypes, balances, bankHolidays }: NewReques
     }
   }
 
+  function handleReasonChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
+    const text = e.target.value
+    setReasonText(text)
+    runAiSuggestions(text)
+  }
+
   function handleReasonKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === 'Tab' && autocomplete) {
       e.preventDefault()
-      const el = e.currentTarget
-      el.value = el.value + autocomplete
-      setAutocomplete('')
-      handleReasonChange({ target: el } as React.ChangeEvent<HTMLTextAreaElement>)
+      const newText = reasonText + autocomplete
+      setReasonText(newText)
+      runAiSuggestions(newText)
     }
   }
 
@@ -162,20 +167,27 @@ export function NewRequestForm({ leaveTypes, balances, bankHolidays }: NewReques
       {/* Reason */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Reason (optional)</label>
-        <textarea
-          name="reason"
-          rows={3}
-          placeholder="Any notes for your manager…"
-          onChange={handleReasonChange}
-          onKeyDown={handleReasonKeyDown}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 resize-none"
-        />
-        {autocomplete && (
-          <div className="flex items-center gap-2 mt-1 px-1">
-            <span className="text-xs text-gray-400 italic truncate">{autocomplete}</span>
-            <kbd className="shrink-0 text-[10px] text-gray-300 border border-gray-200 rounded px-1 py-0.5 font-mono leading-none">Tab</kbd>
+        <div className="relative">
+          {/* Ghost text layer — sits behind the transparent textarea */}
+          <div
+            aria-hidden
+            className="absolute inset-0 px-3 py-2 text-sm pointer-events-none overflow-hidden rounded-lg"
+            style={{ lineHeight: '1.5rem', whiteSpace: 'pre-wrap', wordBreak: 'break-word', fontFamily: 'inherit' }}
+          >
+            <span style={{ visibility: 'hidden' }}>{reasonText}</span>
+            <span className="text-gray-400">{autocomplete}</span>
           </div>
-        )}
+          <textarea
+            name="reason"
+            rows={3}
+            value={reasonText}
+            placeholder="Any notes for your manager…"
+            onChange={handleReasonChange}
+            onKeyDown={handleReasonKeyDown}
+            className="relative w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 resize-none bg-transparent"
+            style={{ lineHeight: '1.5rem' }}
+          />
+        </div>
       </div>
 
       {/* Supporting document */}
