@@ -43,7 +43,30 @@ export async function updateUserProfile(
 
   if (dbError) return { error: dbError.message }
 
+  // When start_date is set, auto-recalculate bank holiday entitlement for the current year
+  if (updates.start_date) {
+    const currentYear = new Date().getFullYear()
+    const [{ data: bhType }, bankHolidays] = await Promise.all([
+      adminClient.from('leave_types').select('id').eq('name', 'Bank Holiday').single(),
+      getEnglandBankHolidays(),
+    ])
+    if (bhType) {
+      const bhDays = proratedBankHolidays(bankHolidays, updates.start_date, currentYear)
+      const { data: existing } = await adminClient
+        .from('leave_balances').select('id')
+        .eq('user_id', userId).eq('leave_type_id', bhType.id).eq('year', currentYear)
+        .maybeSingle()
+      if (existing) {
+        await adminClient.from('leave_balances').update({ total_days: bhDays }).eq('id', existing.id)
+      } else {
+        await adminClient.from('leave_balances')
+          .insert({ user_id: userId, leave_type_id: bhType.id, year: currentYear, total_days: bhDays, used_days: 0 })
+      }
+    }
+  }
+
   revalidatePath('/dashboard/admin')
+  revalidatePath('/dashboard/admin/balances')
   revalidatePath('/dashboard/manager')
 }
 
