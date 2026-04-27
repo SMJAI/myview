@@ -32,28 +32,30 @@ interface NavItem {
   label: string
   icon: React.FC<{ className?: string }>
   showBadge?: boolean
+  iconColor: string
+  iconBg: string
 }
 
 const employeeNav: NavItem[] = [
-  { href: '/dashboard',              label: 'Dashboard',     icon: LayoutDashboard },
-  { href: '/dashboard/requests/new', label: 'New Request',   icon: PlusCircle },
-  { href: '/dashboard/requests',     label: 'My Requests',   icon: ClipboardList },
-  { href: '/dashboard/balances',     label: 'My Balances',   icon: BarChart3 },
-  { href: '/dashboard/calendar',     label: 'Team Calendar', icon: CalendarDays },
+  { href: '/dashboard',              label: 'Dashboard',     icon: LayoutDashboard, iconColor: 'text-brand-600',  iconBg: 'bg-brand-50' },
+  { href: '/dashboard/requests/new', label: 'New Request',   icon: PlusCircle,      iconColor: 'text-sky-600',    iconBg: 'bg-sky-50' },
+  { href: '/dashboard/requests',     label: 'My Requests',   icon: ClipboardList,   iconColor: 'text-violet-600', iconBg: 'bg-violet-50' },
+  { href: '/dashboard/balances',     label: 'My Balances',   icon: BarChart3,       iconColor: 'text-amber-600',  iconBg: 'bg-amber-50' },
+  { href: '/dashboard/calendar',     label: 'Team Calendar', icon: CalendarDays,    iconColor: 'text-teal-600',   iconBg: 'bg-teal-50' },
 ]
 
 const managerNav: NavItem[] = [
-  { href: '/dashboard/manager',          label: 'Overview',      icon: ShieldCheck },
-  { href: '/dashboard/manager/requests', label: 'All Requests',  icon: ClipboardList, showBadge: true },
-  { href: '/dashboard/manager/balances', label: 'Team Balances', icon: BarChart3 },
+  { href: '/dashboard/manager',          label: 'Overview',      icon: ShieldCheck,   iconColor: 'text-brand-600',  iconBg: 'bg-brand-50',   showBadge: false },
+  { href: '/dashboard/manager/requests', label: 'All Requests',  icon: ClipboardList, iconColor: 'text-violet-600', iconBg: 'bg-violet-50',  showBadge: true },
+  { href: '/dashboard/manager/balances', label: 'Team Balances', icon: BarChart3,     iconColor: 'text-amber-600',  iconBg: 'bg-amber-50' },
 ]
 
 const hrAdminNav: NavItem[] = [
-  { href: '/dashboard/manager',          label: 'Overview',       icon: ShieldCheck },
-  { href: '/dashboard/manager/requests', label: 'All Requests',   icon: ClipboardList, showBadge: true },
-  { href: '/dashboard/admin/balances',   label: 'Leave Balances', icon: Sliders },
-  { href: '/dashboard/admin/reports',    label: 'Reports',        icon: FileBarChart2 },
-  { href: '/dashboard/admin',            label: 'Users',          icon: Users },
+  { href: '/dashboard/manager',          label: 'Overview',       icon: ShieldCheck,   iconColor: 'text-brand-600',  iconBg: 'bg-brand-50' },
+  { href: '/dashboard/manager/requests', label: 'All Requests',   icon: ClipboardList, iconColor: 'text-violet-600', iconBg: 'bg-violet-50',  showBadge: true },
+  { href: '/dashboard/admin/balances',   label: 'Leave Balances', icon: Sliders,       iconColor: 'text-amber-600',  iconBg: 'bg-amber-50' },
+  { href: '/dashboard/admin/reports',    label: 'Reports',        icon: FileBarChart2, iconColor: 'text-blue-600',   iconBg: 'bg-blue-50' },
+  { href: '/dashboard/admin',            label: 'Users',          icon: Users,         iconColor: 'text-rose-600',   iconBg: 'bg-rose-50' },
 ]
 
 type ViewKey = 'employee' | 'admin'
@@ -65,18 +67,14 @@ const ROLE_CONFIG: Record<string, { label: string; nav: NavItem[] }> = {
 
 function PlantDecoration() {
   return (
-    <div className="flex justify-center items-end px-4 py-2 opacity-50 pointer-events-none select-none">
+    <div className="flex justify-center items-end px-4 py-2 opacity-40 pointer-events-none select-none">
       <svg width="100" height="72" viewBox="0 0 100 72" fill="none" aria-hidden="true">
-        {/* Leaves */}
         <ellipse cx="30" cy="38" rx="24" ry="13" fill="#16a34a" transform="rotate(-30 30 38)" opacity="0.85"/>
         <ellipse cx="68" cy="40" rx="22" ry="12" fill="#22c55e" transform="rotate(25 68 40)" opacity="0.85"/>
         <ellipse cx="48" cy="26" rx="18" ry="10" fill="#15803d" transform="rotate(-10 48 26)" opacity="0.9"/>
         <ellipse cx="55" cy="36" rx="14" ry="8" fill="#4ade80" transform="rotate(15 55 36)" opacity="0.7"/>
-        {/* Stem */}
         <path d="M50 62 Q50 48 50 32" stroke="#166534" strokeWidth="2.5" strokeLinecap="round"/>
-        {/* Pot rim */}
         <rect x="33" y="60" width="34" height="5" rx="2.5" fill="#9ca3af"/>
-        {/* Pot body */}
         <path d="M36 65 L64 65 L61 72 L39 72 Z" fill="#d1d5db"/>
       </svg>
     </div>
@@ -138,7 +136,7 @@ export function Sidebar({ profile, pendingCount = 0 }: SidebarProps) {
         </div>
       </div>
 
-      {/* View switcher — only for manager / hr_admin */}
+      {/* View switcher */}
       {hasAdminRole ? (
         <div className="px-4 pt-4 pb-1">
           <div className="flex rounded-xl bg-gray-100 p-1 gap-1">
@@ -179,24 +177,29 @@ export function Sidebar({ profile, pendingCount = 0 }: SidebarProps) {
 
       {/* Nav */}
       <nav className="flex-1 px-3 py-2 overflow-y-auto space-y-0.5">
-        {activeNav.map(({ href, label, icon: Icon, showBadge }) => {
+        {activeNav.map(({ href, label, icon: Icon, showBadge, iconColor, iconBg }) => {
           const active = pathname === href
           return (
             <Link
               key={href}
               href={href}
               className={cn(
-                'group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all relative',
+                'group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all relative',
                 active
-                  ? 'bg-brand-50 text-brand-700'
-                  : 'text-gray-500 hover:bg-gray-50 hover:text-gray-800'
+                  ? 'bg-brand-50 text-gray-900'
+                  : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
               )}
             >
-              {/* Active left border */}
               {active && (
-                <span className="absolute left-0 top-1.5 bottom-1.5 w-[3px] bg-brand-600 rounded-r-full" />
+                <span className="absolute left-0 top-2 bottom-2 w-[3px] bg-brand-600 rounded-r-full" />
               )}
-              <Icon className={cn('w-[18px] h-[18px] shrink-0', active ? 'text-brand-600' : 'text-gray-400 group-hover:text-gray-600')} />
+              {/* Coloured icon chip */}
+              <div className={cn(
+                'w-7 h-7 rounded-lg flex items-center justify-center shrink-0 transition-all',
+                active ? 'bg-brand-100' : iconBg
+              )}>
+                <Icon className={cn('w-[15px] h-[15px]', active ? 'text-brand-600' : iconColor)} />
+              </div>
               <span className="flex-1">{label}</span>
               {showBadge && pendingCount > 0 && (
                 <span className="bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 leading-none">
@@ -213,11 +216,11 @@ export function Sidebar({ profile, pendingCount = 0 }: SidebarProps) {
 
       {/* User + logout */}
       <div className="px-4 pb-4 pt-2 border-t border-gray-100">
-        <div className="flex items-center gap-3 px-1 py-2.5 rounded-xl bg-gray-50 mb-2">
+        <div className="flex items-center gap-3 px-2 py-2.5 rounded-xl bg-gray-50 mb-2">
           <Avatar avatarUrl={profile.avatar_url} name={profile.full_name} size={34} />
           <div className="min-w-0 flex-1">
             <p className="text-sm font-semibold text-gray-900 truncate leading-tight">{profile.full_name}</p>
-            <p className="text-[11px] text-gray-400 leading-tight">{roleLabel}</p>
+            <p className="text-[11px] text-gray-500 leading-tight">{roleLabel}</p>
           </div>
         </div>
         <button
