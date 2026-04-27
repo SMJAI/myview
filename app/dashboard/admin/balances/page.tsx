@@ -2,13 +2,18 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { BalancesTable } from './balances-table'
+import { EmployeeSelector } from './employee-selector'
 import { getEnglandBankHolidays } from '@/lib/bank-holidays'
 import { proratedBankHolidays, prorateEntitlement } from '@/lib/proration'
 import type { Profile, LeaveType, LeaveBalance } from '@/lib/types'
 import { canManageUsers } from '@/lib/types'
 import Link from 'next/link'
 
-export default async function BalancesPage() {
+export default async function BalancesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ user?: string }>
+}) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
@@ -19,6 +24,7 @@ export default async function BalancesPage() {
 
   const currentYear = new Date().getFullYear()
   const selectedYear = currentYear
+  const params = await searchParams
 
   const [{ data: employees }, { data: leaveTypes }, bankHolidays] = await Promise.all([
     supabase.from('profiles').select('*').order('full_name'),
@@ -26,7 +32,11 @@ export default async function BalancesPage() {
     getEnglandBankHolidays(),
   ])
 
-  // Auto-seed missing default balances for employees who have a start date
+  const allEmployees = (employees ?? []) as Profile[]
+  const selectedId = params.user ?? allEmployees[0]?.id
+  const selectedEmployee = allEmployees.find(e => e.id === selectedId) ?? allEmployees[0]
+
+  // Auto-seed missing default balances for all employees
   const admin = createAdminClient()
   const { data: existingBalances } = await admin
     .from('leave_balances').select('user_id, leave_type_id').eq('year', selectedYear)
@@ -34,7 +44,7 @@ export default async function BalancesPage() {
   const defaultTypes = ((leaveTypes ?? []) as LeaveType[]).filter(lt => lt.is_default)
   const toInsert: { user_id: string; leave_type_id: string; year: number; total_days: number; used_days: number }[] = []
 
-  for (const emp of (employees ?? []) as Profile[]) {
+  for (const emp of allEmployees) {
     if (!emp.start_date) continue
     for (const lt of defaultTypes) {
       if ((existingBalances ?? []).some(b => b.user_id === emp.id && b.leave_type_id === lt.id)) continue
@@ -46,9 +56,10 @@ export default async function BalancesPage() {
   }
   if (toInsert.length > 0) await admin.from('leave_balances').insert(toInsert)
 
-  // Fetch balances fresh (after potential auto-seed above)
-  const { data: balances } = await admin
-    .from('leave_balances').select('*, leave_types(*)').eq('year', selectedYear)
+  // Fetch balances for selected employee only
+  const { data: balances } = selectedEmployee
+    ? await admin.from('leave_balances').select('*, leave_types(*)').eq('year', selectedYear).eq('user_id', selectedEmployee.id)
+    : { data: [] }
 
   return (
     <div className="space-y-6">
@@ -59,15 +70,12 @@ export default async function BalancesPage() {
             Manage entitlements for all employees — {selectedYear}
           </p>
         </div>
-        <Link
-          href="/dashboard/admin"
-          className="text-sm text-brand-600 hover:underline"
-        >
+        <Link href="/dashboard/admin" className="text-sm text-brand-600 hover:underline">
           ← Back to Users
         </Link>
       </div>
 
-      {!employees || employees.length === 0 ? (
+      {allEmployees.length === 0 ? (
         <div className="bg-white rounded-xl border border-gray-200 p-8 text-center text-gray-500 text-sm">
           No employees yet.{' '}
           <Link href="/dashboard/admin" className="text-brand-600 hover:underline">
@@ -75,13 +83,18 @@ export default async function BalancesPage() {
           </Link>
         </div>
       ) : (
-        <BalancesTable
-          employees={employees as Profile[]}
-          leaveTypes={(leaveTypes ?? []) as LeaveType[]}
-          balances={(balances ?? []) as LeaveBalance[]}
-          year={selectedYear}
-          bankHolidays={bankHolidays}
-        />
+        <>
+          <EmployeeSelector employees={allEmployees} selectedId={selectedId ?? ''} />
+          {selectedEmployee && (
+            <BalancesTable
+              employees={[selectedEmployee]}
+              leaveTypes={(leaveTypes ?? []) as LeaveType[]}
+              balances={(balances ?? []) as LeaveBalance[]}
+              year={selectedYear}
+              bankHolidays={bankHolidays}
+            />
+          )}
+        </>
       )}
     </div>
   )

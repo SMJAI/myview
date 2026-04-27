@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { updateTotalDays, upsertBalance } from './actions'
 import { prorateEntitlement, proratedBankHolidays } from '@/lib/proration'
+import { Avatar } from '@/components/avatar'
 import type { Profile, LeaveType, LeaveBalance } from '@/lib/types'
 
 interface BalancesTableProps {
@@ -67,9 +68,7 @@ export function BalancesTable({ employees, leaveTypes, balances, year, bankHolid
         <div key={emp.id} className="bg-white rounded-xl border border-gray-200 overflow-hidden">
           {/* Employee header */}
           <div className="px-5 py-4 border-b border-gray-100 flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-brand-100 flex items-center justify-center text-brand-700 font-semibold text-sm shrink-0">
-              {emp.full_name.charAt(0).toUpperCase()}
-            </div>
+            <Avatar avatarUrl={emp.avatar_url} name={emp.full_name} size={34} />
             <div>
               <p className="font-semibold text-gray-900">{emp.full_name}</p>
               <p className="text-xs text-gray-500">
