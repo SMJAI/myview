@@ -16,7 +16,6 @@ import {
   BarChart3,
   FileBarChart2,
   ShieldCheck,
-  Bell,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useState, useEffect } from 'react'
@@ -64,7 +63,27 @@ const ROLE_CONFIG: Record<string, { label: string; nav: NavItem[] }> = {
   hr_admin: { label: 'HR Admin', nav: hrAdminNav },
 }
 
-export function Sidebar({ profile, pendingCount = 0, notificationCount = 0 }: SidebarProps) {
+function PlantDecoration() {
+  return (
+    <div className="flex justify-center items-end px-4 py-2 opacity-50 pointer-events-none select-none">
+      <svg width="100" height="72" viewBox="0 0 100 72" fill="none" aria-hidden="true">
+        {/* Leaves */}
+        <ellipse cx="30" cy="38" rx="24" ry="13" fill="#16a34a" transform="rotate(-30 30 38)" opacity="0.85"/>
+        <ellipse cx="68" cy="40" rx="22" ry="12" fill="#22c55e" transform="rotate(25 68 40)" opacity="0.85"/>
+        <ellipse cx="48" cy="26" rx="18" ry="10" fill="#15803d" transform="rotate(-10 48 26)" opacity="0.9"/>
+        <ellipse cx="55" cy="36" rx="14" ry="8" fill="#4ade80" transform="rotate(15 55 36)" opacity="0.7"/>
+        {/* Stem */}
+        <path d="M50 62 Q50 48 50 32" stroke="#166534" strokeWidth="2.5" strokeLinecap="round"/>
+        {/* Pot rim */}
+        <rect x="33" y="60" width="34" height="5" rx="2.5" fill="#9ca3af"/>
+        {/* Pot body */}
+        <path d="M36 65 L64 65 L61 72 L39 72 Z" fill="#d1d5db"/>
+      </svg>
+    </div>
+  )
+}
+
+export function Sidebar({ profile, pendingCount = 0 }: SidebarProps) {
   const pathname = usePathname()
   const router   = useRouter()
   const supabase = createClient()
@@ -99,6 +118,8 @@ export function Sidebar({ profile, pendingCount = 0, notificationCount = 0 }: Si
   }
 
   const activeNav = hasAdminRole && view === 'admin' ? adminConfig.nav : employeeNav
+  const currentSectionLabel = hasAdminRole && view === 'admin' ? adminConfig.label : 'My Space'
+  const switchLabel = hasAdminRole && view === 'employee' ? adminConfig.label : (hasAdminRole ? 'My Space' : null)
 
   const roleLabel =
     profile.role === 'hr_admin' ? 'HR Admin'
@@ -106,7 +127,7 @@ export function Sidebar({ profile, pendingCount = 0, notificationCount = 0 }: Si
     : 'Employee'
 
   return (
-    <aside className="w-64 h-screen sticky top-0 bg-white border-r border-gray-200 flex flex-col overflow-hidden">
+    <aside className="w-64 h-screen sticky top-0 bg-white border-r border-gray-100 flex flex-col overflow-hidden">
 
       {/* Logo */}
       <div className="px-5 py-4 border-b border-gray-100">
@@ -119,43 +140,24 @@ export function Sidebar({ profile, pendingCount = 0, notificationCount = 0 }: Si
         </div>
       </div>
 
-      {/* View switcher — only shown for manager / hr_admin */}
-      {hasAdminRole && (
-        <div className="px-4 pt-4 pb-2">
-          <div className="flex rounded-lg bg-gray-100 p-0.5 gap-0.5">
-            <button
-              onClick={() => switchView('employee')}
-              className={cn(
-                'flex-1 text-xs font-medium py-1.5 rounded-md transition-all',
-                view === 'employee'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-500 hover:text-gray-700'
-              )}
-            >
-              My Space
-            </button>
-            <button
-              onClick={() => switchView('admin')}
-              className={cn(
-                'flex-1 text-xs font-medium py-1.5 rounded-md transition-all flex items-center justify-center gap-1.5',
-                view === 'admin'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-500 hover:text-gray-700'
-              )}
-            >
-              {adminConfig.label}
-              {pendingCount > 0 && (
-                <span className="bg-red-500 text-white text-[9px] font-bold rounded-full min-w-[15px] h-[15px] flex items-center justify-center px-1 leading-none">
-                  {pendingCount}
-                </span>
-              )}
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Section label + role badge */}
+      <div className="px-5 pt-5 pb-1 flex items-center gap-2">
+        <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">{currentSectionLabel}</span>
+        {hasAdminRole && switchLabel && (
+          <button
+            onClick={() => switchView(view === 'employee' ? 'admin' : 'employee')}
+            className="text-[10px] font-semibold px-2 py-0.5 rounded-full transition-colors bg-brand-100 text-brand-700 hover:bg-brand-200"
+          >
+            {switchLabel}
+            {view === 'employee' && pendingCount > 0 && (
+              <span className="ml-1 bg-red-500 text-white text-[8px] font-bold rounded-full px-1 py-px">{pendingCount}</span>
+            )}
+          </button>
+        )}
+      </div>
 
       {/* Nav */}
-      <nav className="flex-1 px-3 py-2 space-y-0.5 overflow-y-auto">
+      <nav className="flex-1 px-3 py-2 overflow-y-auto space-y-0.5">
         {activeNav.map(({ href, label, icon: Icon, showBadge }) => {
           const active = pathname === href
           return (
@@ -163,13 +165,17 @@ export function Sidebar({ profile, pendingCount = 0, notificationCount = 0 }: Si
               key={href}
               href={href}
               className={cn(
-                'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+                'group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all relative',
                 active
                   ? 'bg-brand-50 text-brand-700'
-                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                  : 'text-gray-500 hover:bg-gray-50 hover:text-gray-800'
               )}
             >
-              <Icon className={cn('w-4 h-4 shrink-0', active ? 'text-brand-600' : 'text-gray-400')} />
+              {/* Active left border */}
+              {active && (
+                <span className="absolute left-0 top-1.5 bottom-1.5 w-[3px] bg-brand-600 rounded-r-full" />
+              )}
+              <Icon className={cn('w-[18px] h-[18px] shrink-0', active ? 'text-brand-600' : 'text-gray-400 group-hover:text-gray-600')} />
               <span className="flex-1">{label}</span>
               {showBadge && pendingCount > 0 && (
                 <span className="bg-red-500 text-white text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1 leading-none">
@@ -181,22 +187,17 @@ export function Sidebar({ profile, pendingCount = 0, notificationCount = 0 }: Si
         })}
       </nav>
 
+      {/* Decorative plant */}
+      <PlantDecoration />
+
       {/* User + logout */}
-      <div className="px-4 py-4 border-t border-gray-100">
-        <div className="flex items-center gap-3 mb-3 px-1">
-          <Avatar avatarUrl={profile.avatar_url} name={profile.full_name} size={32} />
+      <div className="px-4 pb-4 pt-2 border-t border-gray-100">
+        <div className="flex items-center gap-3 px-1 py-2.5 rounded-xl bg-gray-50 mb-2">
+          <Avatar avatarUrl={profile.avatar_url} name={profile.full_name} size={34} />
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-medium text-gray-900 truncate">{profile.full_name}</p>
-            <p className="text-xs text-gray-400">{roleLabel}</p>
+            <p className="text-sm font-semibold text-gray-900 truncate leading-tight">{profile.full_name}</p>
+            <p className="text-[11px] text-gray-400 leading-tight">{roleLabel}</p>
           </div>
-          <Link href="/dashboard/notifications" className="relative shrink-0 p-1 rounded-lg hover:bg-gray-100 transition-colors">
-            <Bell className="w-4 h-4 text-gray-400" />
-            {notificationCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[8px] font-bold rounded-full min-w-[14px] h-[14px] flex items-center justify-center px-0.5 leading-none">
-                {notificationCount > 9 ? '9+' : notificationCount}
-              </span>
-            )}
-          </Link>
         </div>
         <button
           onClick={handleLogout}

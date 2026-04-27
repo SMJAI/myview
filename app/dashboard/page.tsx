@@ -14,52 +14,90 @@ function timeGreeting() {
   return 'Good evening'
 }
 
+function timeSunEmoji() {
+  const hour = new Date().getUTCHours() + 1
+  if (hour < 12) return '🌤️'
+  if (hour < 17) return '☀️'
+  return '🌙'
+}
+
+// Emoji + colored background per leave type name
+const LEAVE_TYPE_UI: Record<string, { emoji: string; bg: string }> = {
+  'Annual Leave':           { emoji: '🌴', bg: '#dcfce7' },
+  'Bank Holiday':           { emoji: '🏛️', bg: '#dbeafe' },
+  'Sick Leave':             { emoji: '🩺', bg: '#fce7f3' },
+  'Compassionate Leave':    { emoji: '🤍', bg: '#f1f5f9' },
+  'Maternity Leave':        { emoji: '🤱', bg: '#fdf4ff' },
+  'Paternity Leave':        { emoji: '👶', bg: '#eff6ff' },
+  'Shared Parental Leave':  { emoji: '👨‍👩‍👧', bg: '#fefce8' },
+  'Adoption Leave':         { emoji: '🏠', bg: '#fff7ed' },
+  'Parental Bereavement':   { emoji: '🕊️', bg: '#f1f5f9' },
+  'Neonatal Care Leave':    { emoji: '🍼', bg: '#f0fdf4' },
+  'Unpaid Parental Leave':  { emoji: '📋', bg: '#f8fafc' },
+  'Unpaid Leave':           { emoji: '⏸️', bg: '#f8fafc' },
+}
+
+function getLeaveUI(name: string | undefined) {
+  if (!name) return { emoji: '📋', bg: '#f1f5f9' }
+  return LEAVE_TYPE_UI[name] ?? { emoji: '📋', bg: '#f1f5f9' }
+}
+
 function WelcomeBanner({ name }: { name: string }) {
   return (
     <div
-      className="relative rounded-2xl overflow-hidden text-white px-8 py-8 flex items-center justify-between gap-6"
-      style={{ background: 'linear-gradient(135deg, #041f14 0%, #065c3d 45%, #1f9f70 100%)' }}
+      className="relative rounded-2xl overflow-hidden px-8 py-9 flex items-center justify-between gap-6"
+      style={{ background: 'linear-gradient(130deg, #d1f0e6 0%, #a3e1ce 55%, #7dcbb0 100%)' }}
     >
-      {/* Dot grid */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.15) 1px, transparent 1px)',
-          backgroundSize: '22px 22px',
-        }}
-      />
-      {/* Glow orb */}
-      <div
-        className="absolute right-0 top-0 bottom-0 w-96 pointer-events-none"
-        style={{ background: 'radial-gradient(ellipse at right center, rgba(110,231,183,0.2) 0%, transparent 70%)' }}
-      />
-      {/* Large circle accent */}
-      <div className="absolute -top-16 -right-16 w-64 h-64 rounded-full pointer-events-none" style={{ background: 'rgba(255,255,255,0.05)' }} />
-      <div className="absolute -bottom-10 right-36 w-40 h-40 rounded-full pointer-events-none" style={{ background: 'rgba(255,255,255,0.04)' }} />
+      {/* Wave shapes */}
+      <svg
+        className="absolute inset-0 w-full h-full pointer-events-none"
+        preserveAspectRatio="none"
+        aria-hidden="true"
+      >
+        <path
+          d="M0 55 Q180 5 380 60 T780 30 L780 260 L0 260 Z"
+          fill="rgba(255,255,255,0.18)"
+        />
+        <path
+          d="M50 80 Q220 25 450 70 T850 40 L850 260 L50 260 Z"
+          fill="rgba(255,255,255,0.1)"
+        />
+        <ellipse cx="88%" cy="20%" rx="120" ry="80" fill="rgba(255,255,255,0.12)" />
+      </svg>
 
+      {/* Text */}
       <div className="relative z-10">
-        <p className="text-xs font-semibold uppercase tracking-widest mb-1" style={{ color: 'rgba(167,243,208,0.7)' }}>
-          {timeGreeting()}
+        <p className="text-[11px] font-semibold uppercase tracking-widest text-green-900/60 mb-1.5">
+          {timeGreeting()} {timeSunEmoji()}
         </p>
-        <h1 className="text-3xl font-bold mb-1.5 tracking-tight">{name} 👋</h1>
-        <p className="text-sm leading-relaxed" style={{ color: 'rgba(167,243,208,0.8)' }}>
+        <h1 className="text-3xl font-bold tracking-tight text-green-950 mb-2">
+          {name} 👋
+        </h1>
+        <p className="text-sm text-green-900/60 leading-relaxed">
           Your health and time matter. Here&apos;s your leave overview.
         </p>
       </div>
 
-      <Link
-        href="/dashboard/requests/new"
-        className="relative z-10 shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all hover:scale-105"
-        style={{
-          background: 'rgba(255,255,255,0.15)',
-          border: '1px solid rgba(255,255,255,0.25)',
-          backdropFilter: 'blur(8px)',
-          color: 'white',
-        }}
-      >
-        <PlusCircle className="w-4 h-4" />
-        New Request
-      </Link>
+      {/* Button + plant */}
+      <div className="relative z-10 flex flex-col items-end gap-5 shrink-0">
+        <Link
+          href="/dashboard/requests/new"
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold bg-white text-green-800 shadow-sm hover:shadow-md transition-all active:scale-95"
+        >
+          <PlusCircle className="w-4 h-4 text-brand-600" />
+          New Request
+        </Link>
+        {/* Inline plant SVG illustration */}
+        <svg width="90" height="72" viewBox="0 0 90 72" fill="none" aria-hidden="true" className="opacity-80">
+          <ellipse cx="26" cy="38" rx="22" ry="13" fill="#16a34a" transform="rotate(-28 26 38)"/>
+          <ellipse cx="63" cy="40" rx="21" ry="12" fill="#22c55e" transform="rotate(22 63 40)"/>
+          <ellipse cx="44" cy="25" rx="17" ry="10" fill="#15803d" transform="rotate(-12 44 25)"/>
+          <ellipse cx="52" cy="34" rx="13" ry="7" fill="#4ade80" transform="rotate(18 52 34)" opacity="0.8"/>
+          <path d="M45 60 Q45 46 45 30" stroke="#166534" strokeWidth="2.5" strokeLinecap="round"/>
+          <rect x="29" y="59" width="32" height="5" rx="2.5" fill="#86efac"/>
+          <path d="M32 64 L58 64 L55 72 L35 72 Z" fill="#bbf7d0"/>
+        </svg>
+      </div>
     </div>
   )
 }
@@ -100,40 +138,56 @@ export default async function DashboardPage() {
               const remaining = b.total_days > 0 ? b.total_days - b.used_days : null
               const low = remaining !== null && remaining <= 2
               const color = b.leave_types?.color ?? '#1F9F70'
+              const { emoji, bg } = getLeaveUI(b.leave_types?.name)
+
               return (
                 <div
                   key={b.id}
-                  className="bg-white rounded-2xl p-5 flex flex-col transition-shadow hover:shadow-md"
-                  style={{
-                    borderTop: `3px solid ${low ? '#ef4444' : color}`,
-                    boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
-                  }}
+                  className="bg-white rounded-2xl p-5 flex flex-col gap-3 hover:shadow-md transition-shadow"
+                  style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}
                 >
-                  <div className="flex items-center gap-2 mb-4">
-                    <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: low ? '#ef4444' : color }} />
-                    <p className="text-xs font-medium text-gray-600 truncate">{b.leave_types?.name}</p>
+                  {/* Icon + name */}
+                  <div className="flex items-center gap-2.5">
+                    <div
+                      className="w-10 h-10 rounded-xl flex items-center justify-center text-xl shrink-0"
+                      style={{ background: bg }}
+                    >
+                      {emoji}
+                    </div>
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: low ? '#ef4444' : color }} />
+                      <p className="text-xs font-medium text-gray-700 truncate leading-tight">{b.leave_types?.name}</p>
+                    </div>
                   </div>
 
+                  {/* Number + chart */}
                   {b.total_days > 0 ? (
-                    <div className="flex items-center gap-3">
-                      <DonutChart used={b.used_days} total={b.total_days} color={low ? '#ef4444' : color} />
+                    <div className="flex items-center justify-between">
                       <div>
-                        <p className={`text-2xl font-bold ${low ? 'text-red-500' : 'text-gray-900'}`}>{remaining}</p>
-                        <p className="text-xs text-gray-400 leading-tight">of {b.total_days}d left</p>
+                        <p className={`text-3xl font-bold leading-none ${low ? 'text-red-500' : 'text-gray-900'}`}>
+                          {remaining}
+                        </p>
+                        <p className="text-xs text-gray-400 mt-1">of {b.total_days}d left</p>
                         {low && <p className="text-[10px] text-red-400 font-medium mt-0.5">Running low</p>}
                       </div>
+                      <DonutChart used={b.used_days} total={b.total_days} color={low ? '#ef4444' : color} size={60} strokeWidth={7} />
                     </div>
                   ) : (
-                    <div className="flex items-center gap-3">
-                      <div className="w-[72px] h-[72px] shrink-0 rounded-full border-[9px] border-gray-100 flex items-center justify-center">
-                        <span className="text-[10px] text-gray-400 text-center leading-tight">no cap</span>
-                      </div>
+                    <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-2xl font-bold text-gray-900">{b.used_days}</p>
-                        <p className="text-xs text-gray-400 leading-tight">days used</p>
+                        <p className="text-3xl font-bold text-gray-900 leading-none">{b.used_days}</p>
+                        <p className="text-xs text-gray-400 mt-1">days used</p>
+                      </div>
+                      <div className="w-[60px] h-[60px] shrink-0 rounded-full border-[7px] border-gray-100 flex items-center justify-center">
+                        <span className="text-[9px] text-gray-400 text-center leading-tight">no cap</span>
                       </div>
                     </div>
                   )}
+
+                  {/* View details */}
+                  <Link href="/dashboard/balances" className="text-xs text-brand-600 hover:text-brand-700 font-medium">
+                    View details →
+                  </Link>
                 </div>
               )
             })}
@@ -172,18 +226,29 @@ export default async function DashboardPage() {
                 </tr>
               </thead>
               <tbody>
-                {(recentRequests as LeaveRequest[]).map((r, i) => (
-                  <tr
-                    key={r.id}
-                    className="hover:bg-brand-50/40 transition-colors"
-                    style={{ borderBottom: i < recentRequests.length - 1 ? '1px solid #f9fafb' : 'none' }}
-                  >
-                    <td className="px-5 py-3.5 font-medium text-gray-900">{r.leave_types?.name}</td>
-                    <td className="px-5 py-3.5 text-gray-500">{formatDateShort(r.start_date)} – {formatDateShort(r.end_date)}</td>
-                    <td className="px-5 py-3.5 text-gray-500">{r.days_count}d</td>
-                    <td className="px-5 py-3.5"><StatusBadge status={r.status} /></td>
-                  </tr>
-                ))}
+                {(recentRequests as LeaveRequest[]).map((r, i) => {
+                  const { emoji, bg } = getLeaveUI(r.leave_types?.name)
+                  return (
+                    <tr
+                      key={r.id}
+                      className="hover:bg-brand-50/30 transition-colors"
+                      style={{ borderBottom: i < recentRequests.length - 1 ? '1px solid #f9fafb' : 'none' }}
+                    >
+                      <td className="px-5 py-3.5">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-8 h-8 rounded-lg flex items-center justify-center text-base shrink-0"
+                            style={{ background: bg }}>
+                            {emoji}
+                          </div>
+                          <span className="font-medium text-gray-900">{r.leave_types?.name}</span>
+                        </div>
+                      </td>
+                      <td className="px-5 py-3.5 text-gray-500">{formatDateShort(r.start_date)} – {formatDateShort(r.end_date)}</td>
+                      <td className="px-5 py-3.5 text-gray-500">{r.days_count}d</td>
+                      <td className="px-5 py-3.5"><StatusBadge status={r.status} /></td>
+                    </tr>
+                  )
+                })}
               </tbody>
             </table>
           )}

@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { Sidebar } from '@/components/sidebar'
+import { Header } from '@/components/header'
 import { Toaster } from '@/components/toaster'
 import type { Profile } from '@/lib/types'
 
@@ -62,9 +63,12 @@ export default async function DashboardLayout({ children }: { children: React.Re
   return (
     <div className="flex min-h-screen">
       <Sidebar profile={profile as Profile} pendingCount={pendingCount} notificationCount={notificationCount} />
-      <main className="flex-1 overflow-y-auto" style={{ background: '#f6faf8' }}>
-        <div className="max-w-5xl mx-auto px-6 py-8">{children}</div>
-      </main>
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <Header profile={profile as Profile} notificationCount={notificationCount} />
+        <main className="flex-1 overflow-y-auto" style={{ background: '#f6faf8' }}>
+          <div className="max-w-5xl mx-auto px-6 py-8">{children}</div>
+        </main>
+      </div>
       <Toaster />
     </div>
   )
