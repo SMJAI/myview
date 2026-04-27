@@ -49,12 +49,15 @@ CREATE TABLE IF NOT EXISTS notifications (
 
 ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "notifications_select_own" ON notifications;
 CREATE POLICY "notifications_select_own" ON notifications
   FOR SELECT USING (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "notifications_update_own" ON notifications;
 CREATE POLICY "notifications_update_own" ON notifications
   FOR UPDATE USING (auth.uid() = user_id);
 
 -- Service role can insert notifications for any user (used from server actions)
+DROP POLICY IF EXISTS "notifications_insert_service" ON notifications;
 CREATE POLICY "notifications_insert_service" ON notifications
   FOR INSERT WITH CHECK (true);
