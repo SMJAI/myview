@@ -16,13 +16,16 @@ import {
   BarChart3,
   FileBarChart2,
   ShieldCheck,
+  Bell,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useState, useEffect } from 'react'
+import { Avatar } from './avatar'
 
 interface SidebarProps {
   profile: Profile
   pendingCount?: number
+  notificationCount?: number
 }
 
 interface NavItem {
@@ -61,7 +64,7 @@ const ROLE_CONFIG: Record<string, { label: string; nav: NavItem[] }> = {
   hr_admin: { label: 'HR Admin', nav: hrAdminNav },
 }
 
-export function Sidebar({ profile, pendingCount = 0 }: SidebarProps) {
+export function Sidebar({ profile, pendingCount = 0, notificationCount = 0 }: SidebarProps) {
   const pathname = usePathname()
   const router   = useRouter()
   const supabase = createClient()
@@ -181,13 +184,19 @@ export function Sidebar({ profile, pendingCount = 0 }: SidebarProps) {
       {/* User + logout */}
       <div className="px-4 py-4 border-t border-gray-100">
         <div className="flex items-center gap-3 mb-3 px-1">
-          <div className="w-8 h-8 rounded-full bg-brand-100 flex items-center justify-center text-brand-700 font-semibold text-sm shrink-0">
-            {profile.full_name.charAt(0).toUpperCase()}
-          </div>
-          <div className="min-w-0">
+          <Avatar avatarUrl={profile.avatar_url} name={profile.full_name} size={32} />
+          <div className="min-w-0 flex-1">
             <p className="text-sm font-medium text-gray-900 truncate">{profile.full_name}</p>
             <p className="text-xs text-gray-400">{roleLabel}</p>
           </div>
+          <Link href="/dashboard/notifications" className="relative shrink-0 p-1 rounded-lg hover:bg-gray-100 transition-colors">
+            <Bell className="w-4 h-4 text-gray-400" />
+            {notificationCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[8px] font-bold rounded-full min-w-[14px] h-[14px] flex items-center justify-center px-0.5 leading-none">
+                {notificationCount > 9 ? '9+' : notificationCount}
+              </span>
+            )}
+          </Link>
         </div>
         <button
           onClick={handleLogout}

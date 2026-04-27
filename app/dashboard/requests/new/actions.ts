@@ -6,6 +6,7 @@ import { getEnglandBankHolidays } from '@/lib/bank-holidays'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { sendNewRequestNotification } from '@/lib/email'
+import { createNotificationsForManagers } from '@/lib/notifications'
 
 export async function submitLeaveRequest(formData: FormData) {
   const supabase = await createClient()
@@ -75,16 +76,29 @@ export async function submitLeaveRequest(formData: FormData) {
     supabase.from('leave_types').select('name').eq('id', leaveTypeId).single(),
     supabase.from('profiles').select('email').in('role', ['manager', 'hr_admin']),
   ])
-  const managerEmails = (managers ?? []).map((m: { email: string }) => m.email).filter(Boolean)
-  await sendNewRequestNotification({
-    employeeName: employeeProfile?.full_name ?? 'Team member',
-    leaveType: leaveType?.name ?? 'Leave',
-    startDate,
-    endDate,
-    daysCount,
-    reason: reason || null,
-    managerEmails,
-  })
+  const leaveTypeName = leaveType?.name ?? 'Leave'
+  const empName = employeeProfile?.full_name ?? 'Team member'
+  const dateRange = `${new Date(startDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })} – ${new Date(endDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}`
+
+  await Promise.all([
+    // In-app notifications for all managers/hr_admin
+    createNotificationsForManagers({
+      title: 'New leave request',
+      body: `${empName} requested ${daysCount} day${daysCount !== 1 ? 's' : ''} of ${leaveTypeName} (${dateRange}).`,
+      type: 'new_request',
+      link: '/dashboard/manager/requests',
+    }),
+    // Email notifications for managers
+    sendNewRequestNotification({
+      employeeName: empName,
+      leaveType: leaveTypeName,
+      startDate,
+      endDate,
+      daysCount,
+      reason: reason || null,
+      managerEmails: (managers ?? []).map((m: { email: string }) => m.email).filter(Boolean),
+    }),
+  ])
 
   revalidatePath('/dashboard')
   revalidatePath('/dashboard/requests')

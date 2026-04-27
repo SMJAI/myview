@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { Users, ClipboardList, Clock } from 'lucide-react'
 import { AbsenceInsights } from '@/components/absence-insights'
 import type { Profile, LeaveRequest } from '@/lib/types'
+import { Avatar } from '@/components/avatar'
 
 export default async function ManagerPage() {
   const supabase = await createClient()
@@ -106,9 +107,7 @@ export default async function ManagerPage() {
                   <tr key={e.id} className="hover:bg-gray-50">
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-3">
-                        <div className="w-7 h-7 rounded-full bg-brand-100 flex items-center justify-center text-brand-700 font-semibold text-xs">
-                          {e.full_name.charAt(0).toUpperCase()}
-                        </div>
+                        <Avatar avatarUrl={e.avatar_url} name={e.full_name} size={28} />
                         <span className="font-medium text-gray-900">{e.full_name}</span>
                       </div>
                     </td>

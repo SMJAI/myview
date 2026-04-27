@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { revalidatePath } from 'next/cache'
 import { sendRequestReviewedNotification } from '@/lib/email'
+import { createNotification } from '@/lib/notifications'
 
 export async function reviewRequest(
   id: string,
@@ -49,13 +50,25 @@ export async function reviewRequest(
     })
   }
 
-  // Notify employee by email
   const emp = request.profiles as { email?: string; full_name?: string } | null
+  const leaveTypeName = (request.leave_types as { name?: string } | null)?.name ?? 'Leave'
+  const dateRange = `${new Date(request.start_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })} – ${new Date(request.end_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}`
+
+  // In-app notification for employee
+  await createNotification({
+    userId: request.user_id,
+    title: status === 'approved' ? 'Leave request approved' : 'Leave request rejected',
+    body: `Your ${leaveTypeName} (${dateRange}, ${request.days_count} day${request.days_count !== 1 ? 's' : ''}) has been ${status}.`,
+    type: status,
+    link: '/dashboard/requests',
+  })
+
+  // Email notification for employee
   if (emp?.email) {
     await sendRequestReviewedNotification({
       employeeEmail: emp.email,
       employeeName: emp.full_name ?? 'Team member',
-      leaveType: (request.leave_types as { name?: string } | null)?.name ?? 'Leave',
+      leaveType: leaveTypeName,
       startDate: request.start_date,
       endDate: request.end_date,
       daysCount: request.days_count,

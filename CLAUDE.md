@@ -125,6 +125,7 @@ app/
         actions.ts            — submitLeaveRequest server action
     balances/page.tsx         — Employee's own balances (filtered to show_in_balances types only)
     calendar/page.tsx         — Team calendar: approved absences grid view
+    notifications/page.tsx    — Notification list; marks all as read on open
     manager/
       page.tsx                — Manager overview: stats cards + AbsenceInsights + team list
       requests/
@@ -147,7 +148,8 @@ app/
 
 components/
   sidebar.tsx                 — My Space / HR Admin segmented pill switcher; sticky h-screen;
-                                auto-switches to admin view on admin routes; pending badge
+                                auto-switches to admin view on admin routes; pending badge; bell icon
+  avatar.tsx                  — <Avatar avatarUrl name size> — shows Google photo or initials fallback
   absence-insights.tsx        — AI insights panel (client component, calls detectAbsencePatterns)
   status-badge.tsx            — LeaveStatus → coloured pill
   ui/button.tsx               — Base button (primary / secondary / danger variants)
@@ -163,6 +165,7 @@ lib/
   proration.ts                — prorateEntitlement(), proratedBankHolidays()
   bank-holidays.ts            — getEnglandBankHolidays() — fetches from gov.uk API
   toast.ts                    — Toast notification helper
+  notifications.ts            — createNotification(), createNotificationsForManagers() server helpers
 
 middleware.ts                 — Session refresh + redirect unauthenticated → /login
 supabase/schema.sql           — Full DB schema, RLS policies, trigger, seed data
@@ -289,11 +292,14 @@ Employees can attach supporting documents (PDF, JPG, PNG, max 10MB) to leave req
 - Animated login page (CSS blobs, glassmorphism)
 - PHH logo + favicon (actual PNG)
 
+- Google profile pictures (avatar_url from OAuth, auto-backfilled, fallback to initials)
+- In-app notifications (bell icon in sidebar, notification list page at /dashboard/notifications)
+- Notifications sent on: new leave submission (→ managers), approve/reject (→ employee)
+
 ### Not Yet Built ❌
 - Password reset flow (Google OAuth only currently)
 - Edit a leave request after submission
 - Multi-year balance view / carry-over
-- Push/in-app notifications
 - Mobile responsive layout
 - Leave request export to CSV/PDF
 - Slack or Teams integration

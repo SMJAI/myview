@@ -52,6 +52,9 @@
 
 | Date | Change |
 |---|---|
+| 2026-04-27 | Google profile pictures from Google OAuth (avatar_url); backfilled for existing users |
+| 2026-04-27 | In-app notification bell in sidebar; notifications page at /dashboard/notifications |
+| 2026-04-27 | Notifications sent on new leave submission (→ managers) and approve/reject (→ employee) |
 | 2026-04-27 | Auto-seed bank holiday balances from employee start date on page load and profile save |
 | 2026-04-27 | Inline ghost text autocomplete in reason textarea (Tab to accept) |
 | 2026-04-27 | AI leave type suggester: silent auto-select with subtle ring confirmation |
@@ -685,6 +688,10 @@ Called only on approval, not on request submission.
 - [x] Animated login page (CSS blobs, glassmorphism)
 - [x] PHH logo PNG + favicon (actual brand assets)
 - [x] Reports page
+- [x] Google profile pictures (from Google OAuth avatar_url; auto-backfilled; fallback to initials)
+- [x] In-app notification bell (sidebar, badge count, links to /dashboard/notifications)
+- [x] Notifications page (all notifications; marks all as read on open)
+- [x] Notifications sent: new leave submission → managers, approve/reject → employee
 
 ---
 
@@ -700,6 +707,5 @@ Features not yet built — in rough priority order:
 | 4 | Mobile responsive layout | Desktop-first currently; sidebar collapses needed |
 | 5 | Leave request export (CSV/PDF) | For payroll/HR record-keeping |
 | 6 | Slack / Teams integration | Approval notifications in team chat |
-| 7 | Push / in-app notifications | Real-time status updates |
-| 8 | Public holiday calendar UI | Visual calendar showing all bank holidays |
-| 9 | Multi-tenancy | If app expands beyond PHH |
+| 7 | Public holiday calendar UI | Visual calendar showing all bank holidays |
+| 8 | Multi-tenancy | If app expands beyond PHH |

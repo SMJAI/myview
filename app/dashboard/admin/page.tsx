@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { EditUserForm } from './edit-user-form'
 import type { Profile } from '@/lib/types'
 import { canManageUsers } from '@/lib/types'
+import { Avatar } from '@/components/avatar'
 
 const ROLE_LABELS: Record<string, { label: string; className: string }> = {
   manager:  { label: 'Manager',  className: 'bg-brand-100 text-brand-700' },
@@ -66,9 +67,7 @@ export default async function AdminPage() {
                   <tr key={u.id} className="hover:bg-gray-50">
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-brand-100 flex items-center justify-center text-brand-700 font-semibold text-sm shrink-0">
-                          {u.full_name.charAt(0).toUpperCase()}
-                        </div>
+                        <Avatar avatarUrl={u.avatar_url} name={u.full_name} size={32} />
                         <span className="font-medium text-gray-900">{u.full_name}</span>
                       </div>
                     </td>

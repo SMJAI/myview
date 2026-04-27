@@ -8,8 +8,20 @@ export interface Profile {
   role: Role
   start_date: string | null
   weekly_hours: number | null
+  avatar_url: string | null
   created_at: string
   updated_at: string
+}
+
+export interface Notification {
+  id: string
+  user_id: string
+  title: string
+  body: string | null
+  type: string
+  read: boolean
+  link: string | null
+  created_at: string
 }
 
 export function canManageUsers(role: Role) {
