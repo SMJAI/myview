@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Bell, Settings } from 'lucide-react'
+import { Bell } from 'lucide-react'
 import { Avatar } from './avatar'
 import type { Profile } from '@/lib/types'
 
@@ -25,14 +25,6 @@ export function Header({ profile, notificationCount }: HeaderProps) {
           </span>
         )}
       </Link>
-
-      <button
-        className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-        title="Settings"
-        aria-label="Settings"
-      >
-        <Settings className="w-5 h-5 text-gray-500" />
-      </button>
 
       <div className="flex items-center gap-2.5 ml-2 pl-3 border-l border-gray-100">
         <Avatar avatarUrl={profile.avatar_url} name={profile.full_name} size={32} />

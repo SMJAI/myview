@@ -1,9 +1,8 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
-import { revalidatePath } from 'next/cache'
 import Link from 'next/link'
 import { Bell, CheckCheck, ExternalLink } from 'lucide-react'
-import type { Notification } from '@/lib/types'
+import type { Notification as AppNotification } from '@/lib/types'
 
 function timeAgo(dateStr: string): string {
   const diff = Date.now() - new Date(dateStr).getTime()
@@ -37,15 +36,14 @@ export default async function NotificationsPage() {
     .order('created_at', { ascending: false })
     .limit(50)
 
-  // Mark all unread as read
-  const hasUnread = (notifications ?? []).some((n: Notification) => !n.read)
+  // Mark all unread as read (sidebar count updates on next navigation)
+  const hasUnread = (notifications ?? []).some((n: AppNotification) => !n.read)
   if (hasUnread) {
     await supabase
       .from('notifications')
       .update({ read: true })
       .eq('user_id', user.id)
       .eq('read', false)
-    revalidatePath('/dashboard', 'layout')
   }
 
   return (
@@ -72,7 +70,7 @@ export default async function NotificationsPage() {
         </div>
       ) : (
         <div className="bg-white rounded-xl border border-gray-200 overflow-hidden divide-y divide-gray-100">
-          {(notifications as Notification[]).map((n) => {
+          {(notifications as AppNotification[]).map((n) => {
             const style = TYPE_STYLE[n.type] ?? TYPE_STYLE.info
             return (
               <div key={n.id} className={`px-5 py-4 flex gap-4 ${!n.read ? 'bg-brand-50/40' : ''}`}>
