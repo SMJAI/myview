@@ -118,8 +118,6 @@ export function Sidebar({ profile, pendingCount = 0 }: SidebarProps) {
   }
 
   const activeNav = hasAdminRole && view === 'admin' ? adminConfig.nav : employeeNav
-  const currentSectionLabel = hasAdminRole && view === 'admin' ? adminConfig.label : 'My Space'
-  const switchLabel = hasAdminRole && view === 'employee' ? adminConfig.label : (hasAdminRole ? 'My Space' : null)
 
   const roleLabel =
     profile.role === 'hr_admin' ? 'HR Admin'
@@ -140,21 +138,44 @@ export function Sidebar({ profile, pendingCount = 0 }: SidebarProps) {
         </div>
       </div>
 
-      {/* Section label + role badge */}
-      <div className="px-5 pt-5 pb-1 flex items-center gap-2">
-        <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">{currentSectionLabel}</span>
-        {hasAdminRole && switchLabel && (
-          <button
-            onClick={() => switchView(view === 'employee' ? 'admin' : 'employee')}
-            className="text-[10px] font-semibold px-2 py-0.5 rounded-full transition-colors bg-brand-100 text-brand-700 hover:bg-brand-200"
-          >
-            {switchLabel}
-            {view === 'employee' && pendingCount > 0 && (
-              <span className="ml-1 bg-red-500 text-white text-[8px] font-bold rounded-full px-1 py-px">{pendingCount}</span>
-            )}
-          </button>
-        )}
-      </div>
+      {/* View switcher — only for manager / hr_admin */}
+      {hasAdminRole ? (
+        <div className="px-4 pt-4 pb-1">
+          <div className="flex rounded-xl bg-gray-100 p-1 gap-1">
+            <button
+              onClick={() => switchView('employee')}
+              className={cn(
+                'flex-1 text-xs font-semibold py-1.5 rounded-lg transition-all',
+                view === 'employee'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-500 hover:text-gray-700'
+              )}
+            >
+              My Space
+            </button>
+            <button
+              onClick={() => switchView('admin')}
+              className={cn(
+                'flex-1 text-xs font-semibold py-1.5 rounded-lg transition-all flex items-center justify-center gap-1.5',
+                view === 'admin'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-500 hover:text-gray-700'
+              )}
+            >
+              {adminConfig.label}
+              {pendingCount > 0 && (
+                <span className="bg-red-500 text-white text-[9px] font-bold rounded-full min-w-[15px] h-[15px] flex items-center justify-center px-1 leading-none">
+                  {pendingCount}
+                </span>
+              )}
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="px-5 pt-4 pb-1">
+          <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">My Space</span>
+        </div>
+      )}
 
       {/* Nav */}
       <nav className="flex-1 px-3 py-2 overflow-y-auto space-y-0.5">
