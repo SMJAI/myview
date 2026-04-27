@@ -4,6 +4,8 @@
 
 > Last updated: 2026-04-27
 
+> **IMPORTANT FOR AI AGENTS:** After every feature addition, change, or removal — update **both** `CLAUDE.md` (§16 feature inventory) **and** `KNOWLEDGE.md` (§2 changelog + relevant sections). `KNOWLEDGE.md` is the living knowledge book shared with the team. Never leave it stale.
+
 ---
 
 ## 1. Identity & Git
